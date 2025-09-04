@@ -1,0 +1,8 @@
+flwr>=1.20.0
+apscheduler>=3.11.0
+flwr-datasets>=0.5.0
+gradio[oauth]>=5.44.1
+torch>=2.8.0
+transformers>=4.56.1
+scikit-learn>=1.7.1
+evaluate>=0.4.5
