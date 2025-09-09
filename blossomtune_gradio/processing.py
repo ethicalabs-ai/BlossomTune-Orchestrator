@@ -1,0 +1,114 @@
+import os
+import shutil
+import sqlite3
+import importlib
+import threading
+import subprocess
+
+# TODO: make it generic. remove gradio import and gradio auth.is_space_owner check
+import gradio as gr
+
+from blossomtune_gradio.ui import auth
+from blossomtune_gradio.logs import log
+from blossomtune_gradio import config as cfg
+
+
+# In-memory store for background processes and logs
+process_store = {"superlink": None, "runner": None}
+
+
+def run_process(command, process_key):
+    """Generic function to run a background process and log its output."""
+    global process_store
+    log(f"[{process_key.title()}] Starting: {' '.join(command)}")
+    try:
+        process = subprocess.Popen(
+            command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1,
+            universal_newlines=True,
+        )
+        process_store[process_key] = process
+        for line in iter(process.stdout.readline, ""):
+            log(f"[{process_key.title()}] {line.strip()}")
+        process.wait()
+    except Exception as e:
+        log(f"[{process_key.title()}] CRITICAL ERROR: {e}")
+    finally:
+        log(f"[{process_key.title()}] Process finished.")
+        process_store[process_key] = None
+
+
+def start_superlink(profile: gr.OAuthProfile | None, oauth_token: gr.OAuthToken | None):
+    if not auth.is_space_owner(profile, oauth_token):
+        return
+    if process_store["superlink"] and process_store["superlink"].poll() is None:
+        return
+    command = [shutil.which("flower-superlink"), "--insecure"]
+    threading.Thread(
+        target=run_process, args=(command, "superlink"), daemon=True
+    ).start()
+
+
+def start_runner(
+    runner_app: str,
+    run_id: str,
+    num_partitions: str,
+    profile: gr.OAuthProfile | None,
+    oauth_token: gr.OAuthToken | None,
+):
+    if not auth.is_space_owner(profile, oauth_token):
+        return
+    if process_store["runner"] and process_store["runner"].poll() is None:
+        gr.Warning("A Runner process is already running.")
+        return
+    if not (process_store["superlink"] and process_store["superlink"].poll() is None):
+        gr.Warning(
+            "Superlink is not running. Please start it before starting the runner."
+        )
+        return
+    if not all([runner_app, run_id, num_partitions]):
+        gr.Warning("Please provide a Runner App, Run ID, and Total Partitions.")
+        return
+    if not num_partitions.isdigit() or int(num_partitions) <= 0:
+        gr.Warning("Total Partitions must be a positive integer.")
+        return
+
+    with sqlite3.connect(cfg.DB_PATH) as conn:
+        conn.execute(
+            "UPDATE config SET value = ? WHERE key = 'num_partitions'",
+            (num_partitions,),
+        )
+        conn.commit()
+    try:
+        runner_app_path = os.path.dirname(importlib.import_module(runner_app).__file__)
+    except ModuleNotFoundError:
+        gr.Warning(f"Unable to find app module '{runner_app}'.")
+        return
+    command = [
+        shutil.which("flwr"),
+        "run",
+        runner_app_path,
+        "local-deployment",
+        "--stream",
+    ]
+    threading.Thread(target=run_process, args=(command, "runner"), daemon=True).start()
+
+
+def stop_process(
+    process_key: str, profile: gr.OAuthProfile | None, oauth_token: gr.OAuthToken | None
+):
+    if not auth.is_space_owner(profile, oauth_token):
+        return
+    process = process_store.get(process_key)
+    if process and process.poll() is None:
+        process.terminate()
+        process.wait()
+        log(f"[{process_key.title()}] Process stopped by user.")
+        process_store[process_key] = None
+    else:
+        log(
+            f"[{process_key.title()}] Stop command received, but no process was running."
+        )
