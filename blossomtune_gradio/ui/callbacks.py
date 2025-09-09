@@ -23,7 +23,6 @@ def get_full_status_update(
     profile: gr.OAuthProfile | None, oauth_token: gr.OAuthToken | None
 ):
     owner = auth.is_space_owner(profile, oauth_token)
-    print(owner)
     auth_status = "Authenticating..."
     is_on_space = cfg.SPACE_OWNER is not None
     hf_handle_val = ""
@@ -177,9 +176,7 @@ def on_check_participant_status(
     pid_to_check = user_hf_handle.strip()
     email_to_add = email.strip()
     activation_code_to_check = activation_code.strip()
-    success, message = fed.check_participant_status(
+    _, message = fed.check_participant_status(
         pid_to_check, email_to_add, activation_code_to_check
     )
-    if success:
-        print(f"participant '{hf_handle}' joined the federation!")
     return {components.request_status_md: gr.update(value=message)}
