@@ -6,8 +6,8 @@ import pandas as pd
 from blossomtune_gradio import config as cfg
 from blossomtune_gradio.logs import log
 from blossomtune_gradio import federation as fed
+from blossomtune_gradio import processing
 
-from .. import processing
 from . import components
 from . import auth
 
@@ -106,13 +106,16 @@ def toggle_superlink(
     profile: gr.OAuthProfile | None, oauth_token: gr.OAuthToken | None
 ):
     """Toggles the Superlink process on or off."""
+    if not auth.is_space_owner(profile, oauth_token):
+        gr.Warning("You are not authorized to perform this operation.")
+        return
     if (
         processing.process_store["superlink"]
         and processing.process_store["superlink"].poll() is None
     ):
-        processing.stop_process("superlink", profile, oauth_token)
+        processing.stop_process("superlink")
     else:
-        processing.start_superlink(profile, oauth_token)
+        processing.start_superlink()
 
 
 def toggle_runner(
@@ -123,15 +126,20 @@ def toggle_runner(
     oauth_token: gr.OAuthToken | None,
 ):
     """Toggles the Runner process on or off."""
+    if not auth.is_space_owner(profile, oauth_token):
+        gr.Warning("You are not authorized to perform this operation.")
+        return
     if (
         processing.process_store["runner"]
         and processing.process_store["runner"].poll() is None
     ):
-        processing.stop_process("runner", profile, oauth_token)
+        processing.stop_process("runner")
     else:
-        processing.start_runner(
-            runner_app, run_id, num_partitions, profile, oauth_token
-        )
+        result, message = processing.start_runner(runner_app, run_id, num_partitions)
+        if not result:
+            gr.Warning(message)
+        else:
+            gr.Info(message)
 
 
 def on_select_pending(pending_data: list, evt: gr.SelectData):

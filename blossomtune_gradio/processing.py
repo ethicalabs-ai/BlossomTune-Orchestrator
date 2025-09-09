@@ -5,10 +5,6 @@ import importlib
 import threading
 import subprocess
 
-# TODO: make it generic. remove gradio import and gradio auth.is_space_owner check
-import gradio as gr
-
-from blossomtune_gradio.ui import auth
 from blossomtune_gradio.logs import log
 from blossomtune_gradio import config as cfg
 
@@ -41,40 +37,32 @@ def run_process(command, process_key):
         process_store[process_key] = None
 
 
-def start_superlink(profile: gr.OAuthProfile | None, oauth_token: gr.OAuthToken | None):
-    if not auth.is_space_owner(profile, oauth_token):
-        return
+def start_superlink():
     if process_store["superlink"] and process_store["superlink"].poll() is None:
-        return
+        return False, "Superlink process is already running."
     command = [shutil.which("flower-superlink"), "--insecure"]
     threading.Thread(
         target=run_process, args=(command, "superlink"), daemon=True
     ).start()
+    return True, "Superlink process started."
 
 
 def start_runner(
     runner_app: str,
     run_id: str,
     num_partitions: str,
-    profile: gr.OAuthProfile | None,
-    oauth_token: gr.OAuthToken | None,
 ):
-    if not auth.is_space_owner(profile, oauth_token):
-        return
     if process_store["runner"] and process_store["runner"].poll() is None:
-        gr.Warning("A Runner process is already running.")
-        return
+        return False, "A Runner process is already running."
     if not (process_store["superlink"] and process_store["superlink"].poll() is None):
-        gr.Warning(
-            "Superlink is not running. Please start it before starting the runner."
+        return (
+            False,
+            "Superlink is not running. Please start it before starting the runner.",
         )
-        return
     if not all([runner_app, run_id, num_partitions]):
-        gr.Warning("Please provide a Runner App, Run ID, and Total Partitions.")
-        return
+        return False, "Please provide a Runner App, Run ID, and Total Partitions."
     if not num_partitions.isdigit() or int(num_partitions) <= 0:
-        gr.Warning("Total Partitions must be a positive integer.")
-        return
+        return False, "Total Partitions must be a positive integer."
 
     with sqlite3.connect(cfg.DB_PATH) as conn:
         conn.execute(
@@ -85,8 +73,7 @@ def start_runner(
     try:
         runner_app_path = os.path.dirname(importlib.import_module(runner_app).__file__)
     except ModuleNotFoundError:
-        gr.Warning(f"Unable to find app module '{runner_app}'.")
-        return
+        return False, f"Unable to find app module '{runner_app}'."
     command = [
         shutil.which("flwr"),
         "run",
@@ -95,13 +82,12 @@ def start_runner(
         "--stream",
     ]
     threading.Thread(target=run_process, args=(command, "runner"), daemon=True).start()
+    return True, f"Process '{run_process}' is running."
 
 
 def stop_process(
-    process_key: str, profile: gr.OAuthProfile | None, oauth_token: gr.OAuthToken | None
+    process_key: str,
 ):
-    if not auth.is_space_owner(profile, oauth_token):
-        return
     process = process_store.get(process_key)
     if process and process.poll() is None:
         process.terminate()

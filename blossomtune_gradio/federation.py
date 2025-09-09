@@ -2,7 +2,6 @@ import string
 import secrets
 import sqlite3
 
-# TODO: remove gr import
 from datetime import datetime
 
 from blossomtune_gradio import config as cfg
