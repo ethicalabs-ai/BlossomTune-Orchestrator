@@ -1,5 +1,5 @@
 import smtplib
-import gradio as gr
+
 from email.mime.text import MIMEText
 
 
@@ -35,7 +35,10 @@ def send_activation_email(recipient_email, activation_code):
             server.send_message(msg)
         log(f"[Email] Activation code sent to {recipient_email}")
     except Exception as e:
+        # FIX: return False if mail send fails.
         log(f"[Email] CRITICAL ERROR sending to {recipient_email}: {e}")
-        gr.Warning(
-            "There was an error sending the activation email. Please contact an administrator."
+        return (
+            False,
+            "There was an error sending the activation email. Please contact an administrator.",
         )
+    return True, ""

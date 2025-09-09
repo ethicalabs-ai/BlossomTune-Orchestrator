@@ -180,3 +180,11 @@ def on_check_participant_status(
         pid_to_check, email_to_add, activation_code_to_check
     )
     return {components.request_status_md: gr.update(value=message)}
+
+
+def on_manage_fed_request(participant_id: str, partition_id: str, action: str):
+    result, message = fed.manage_request(participant_id, partition_id, action)
+    if result:
+        gr.Info(message)
+    else:
+        gr.Warning(message)

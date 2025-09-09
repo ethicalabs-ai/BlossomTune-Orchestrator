@@ -10,7 +10,7 @@ pinned: false
 hf_oauth: true
 ---
 
-# BlossomTune 🌸 Flower Superlink & Runner
+# BlossomTune 🌸 Flower Superlink & Runner Orchestrator
 
 Welcome to BlossomTune! This application orchestrates federated learning experiments using Flower.ai and Gradio.
 

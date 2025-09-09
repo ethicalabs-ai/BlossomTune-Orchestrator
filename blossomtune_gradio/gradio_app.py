@@ -1,7 +1,6 @@
 import gradio as gr
 
 from blossomtune_gradio import database as db
-from blossomtune_gradio import federation as fed
 from blossomtune_gradio.ui import components
 from blossomtune_gradio.ui import callbacks
 
@@ -104,7 +103,7 @@ with gr.Blocks(theme=gr.themes.Soft(), title="Flower Superlink & Runner") as dem
     ).then(fn=callbacks.get_full_status_update, inputs=None, outputs=outputs_to_update)
 
     approve_btn.click(
-        fn=fed.manage_request,
+        fn=callbacks.on_manage_fed_request,
         inputs=[
             components.selected_participant_id_tb,
             components.partition_id_tb,
@@ -113,7 +112,7 @@ with gr.Blocks(theme=gr.themes.Soft(), title="Flower Superlink & Runner") as dem
         outputs=None,
     ).then(fn=callbacks.get_full_status_update, inputs=None, outputs=outputs_to_update)
     deny_btn.click(
-        fn=fed.manage_request,
+        fn=callbacks.on_manage_fed_request,
         inputs=[
             components.selected_participant_id_tb,
             components.partition_id_tb,

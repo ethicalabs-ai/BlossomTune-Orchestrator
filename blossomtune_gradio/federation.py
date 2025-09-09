@@ -1,7 +1,8 @@
 import string
 import secrets
 import sqlite3
-import gradio as gr
+
+# TODO: remove gr import
 from datetime import datetime
 
 from blossomtune_gradio import config as cfg
@@ -63,24 +64,27 @@ def check_participant_status(pid_to_check: str, email: str, activation_code: str
 
         participant_id = generate_participant_id()
         new_activation_code = generate_activation_code()
-        with sqlite3.connect(cfg.DB_PATH) as conn:
-            conn.execute(
-                "INSERT INTO requests (participant_id, status, timestamp, hf_handle, email, activation_code, is_activated) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                (
-                    participant_id,
-                    "pending",
-                    datetime.utcnow().isoformat(),
-                    pid_to_check,
-                    email,
-                    new_activation_code,
-                    0,
-                ),
+        mail_sent, message = mail.send_activation_email(email, new_activation_code)
+        if mail_sent:
+            with sqlite3.connect(cfg.DB_PATH) as conn:
+                conn.execute(
+                    "INSERT INTO requests (participant_id, status, timestamp, hf_handle, email, activation_code, is_activated) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                    (
+                        participant_id,
+                        "pending",
+                        datetime.utcnow().isoformat(),
+                        pid_to_check,
+                        email,
+                        new_activation_code,
+                        0,
+                    ),
+                )
+            return (
+                True,
+                "✅ **Registration Submitted!** Please check your email for an activation code to complete your request.",
             )
-        mail.send_activation_email(email, new_activation_code)
-        return (
-            True,
-            "✅ **Registration Submitted!** Please check your email for an activation code to complete your request.",
-        )
+        else:
+            return (False, message)
 
     # Existing user
     participant_id, status, partition_id, is_activated, stored_code = result
@@ -145,13 +149,11 @@ def check_participant_status(pid_to_check: str, email: str, activation_code: str
 def manage_request(participant_id: str, partition_id: str, action: str):
     """Admin function to approve/deny a request and assign a partition ID."""
     if not participant_id:
-        gr.Warning("Please select a participant from the pending requests table.")
-        return
+        return False, "Please select a participant from the pending requests table."
 
     if action == "approve":
         if not partition_id or not partition_id.isdigit():
-            gr.Warning("Please provide a valid integer for the Partition ID.")
-            return
+            return False, "Please provide a valid integer for the Partition ID."
 
         p_id_int = int(partition_id)
         with sqlite3.connect(cfg.DB_PATH) as conn:
@@ -163,10 +165,10 @@ def manage_request(participant_id: str, partition_id: str, action: str):
             )
             is_activated_res = cursor.fetchone()
             if not is_activated_res or not is_activated_res[0]:
-                gr.Warning(
-                    "This participant has not activated their email yet. Approval is not allowed."
+                return (
+                    False,
+                    "This participant has not activated their email yet. Approval is not allowed.",
                 )
-                return
 
             # Check if the partition ID is already in use by an approved participant
             cursor.execute(
@@ -174,20 +176,28 @@ def manage_request(participant_id: str, partition_id: str, action: str):
                 (p_id_int,),
             )
             if cursor.fetchone():
-                gr.Warning(
-                    f"Partition ID {p_id_int} is already assigned. Please choose a different one."
+                return (
+                    False,
+                    f"Partition ID {p_id_int} is already assigned. Please choose a different one.",
                 )
-                return
 
             conn.execute(
                 "UPDATE requests SET status = ?, partition_id = ? WHERE participant_id = ?",
                 ("approved", p_id_int, participant_id),
+            )
+            return (
+                True,
+                f"Participant {participant_id} is allowed to join the federation.",
             )
     else:  # Deny
         with sqlite3.connect(cfg.DB_PATH) as conn:
             conn.execute(
                 "UPDATE requests SET status = ?, partition_id = NULL WHERE participant_id = ?",
                 ("denied", participant_id),
+            )
+            return (
+                True,
+                f"Participant {participant_id} is not allowed to join the federation.",
             )
 
 
