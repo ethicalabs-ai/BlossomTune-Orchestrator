@@ -19,7 +19,7 @@ COPY pyproject.toml uv.lock ./
 
 # Install dependencies into the virtual environment using uv
 # This is faster than pip and uses the lock file for reproducible builds.
-RUN uv sync --locked --no-cache
+RUN uv sync --locked --no-cache --index-strategy=unsafe-best-match
 
 
 # This stage creates the final, lean image for production.
