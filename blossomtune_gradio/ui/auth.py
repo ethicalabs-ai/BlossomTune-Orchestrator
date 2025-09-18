@@ -9,7 +9,10 @@ def is_space_owner(profile: gr.OAuthProfile | None, oauth_token: gr.OAuthToken |
     """Check if the user is the owner. Always returns True for local development."""
     if cfg.SPACE_OWNER is None:
         return True
-    org_names = [org["name"] for org in whoami(oauth_token.token)["orgs"]]
+    if oauth_token:
+        org_names = [org["name"] for org in whoami(oauth_token.token)["orgs"]]
+    else:
+        org_names = []
     return profile is not None and (
         profile.name == cfg.SPACE_OWNER or cfg.SPACE_OWNER in org_names
     )
