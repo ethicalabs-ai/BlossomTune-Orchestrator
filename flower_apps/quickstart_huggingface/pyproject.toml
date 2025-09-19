@@ -37,8 +37,8 @@ packages = ["."]
 publisher = "flwrlabs"
 
 [tool.flwr.app.components]
-serverapp = "flower_apps.quickstart_huggingface.huggingface_example.server_app:app"
-clientapp = "flower_apps.quickstart_huggingface.huggingface_example.client_app:app"
+serverapp = "huggingface_example.server_app:app"
+clientapp = "huggingface_example.client_app:app"
 
 [tool.flwr.app.config]
 num-server-rounds = 3
