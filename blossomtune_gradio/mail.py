@@ -56,7 +56,7 @@ class SMTPMailSender(EmailSender):
                     server.starttls()
                     server.login(cfg.SMTP_USER, cfg.SMTP_PASSWORD)
                 server.send_message(msg)
-            log(f"[Email] SMTP email sent to {recipient_email}")
+            log("[Email] SMTP email sent.")
             return True, ""
         except Exception as e:
             log(f"[Email] CRITICAL ERROR sending to {recipient_email} via SMTP: {e}")
@@ -100,9 +100,7 @@ class MailjetSender(EmailSender):
         try:
             response = requests.post(url, auth=(api_key, api_secret), json=data)
             response.raise_for_status()
-            log(
-                f"[Email] Mailjet email sent to {recipient_email}. Status: {response.status_code}"
-            )
+            log(f"[Email] Mailjet email sent. Status: {response.status_code}")
             return True, ""
         except requests.exceptions.RequestException as e:
             error_msg = f"Error sending email via Mailjet API: {e}. Response: {e.response.text if e.response else 'No response'}"
