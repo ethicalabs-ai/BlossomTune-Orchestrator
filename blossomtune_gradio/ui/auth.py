@@ -14,5 +14,5 @@ def is_space_owner(profile: gr.OAuthProfile | None, oauth_token: gr.OAuthToken |
     else:
         org_names = []
     return profile is not None and (
-        profile.name == cfg.SPACE_OWNER or cfg.SPACE_OWNER in org_names
+        profile.username == cfg.SPACE_OWNER or cfg.SPACE_OWNER in org_names
     )
