@@ -31,11 +31,11 @@ def get_full_status_update(
     if is_on_space:
         if profile:
             auth_status = (
-                f"✅ Logged in as **{profile.name}**. You are the space owner."
+                f"✅ Logged in as **{profile.preferred_username}**. You are the space owner."
                 if owner
-                else f"Logged in as: {profile.name}."
+                else f"Logged in as: {profile.preferred_username}."
             )
-            hf_handle_val = profile.name
+            hf_handle_val = profile.preferred_username
         else:
             auth_status = "⚠️ You are not logged in. Please log in with Hugging Face."
     else:
@@ -173,7 +173,7 @@ def on_check_participant_status(
             )
         }
 
-    user_hf_handle = profile.name if is_on_space else hf_handle
+    user_hf_handle = profile.preferred_username if is_on_space else hf_handle
     if not user_hf_handle or not user_hf_handle.strip():
         return {
             components.request_status_md: gr.update(
