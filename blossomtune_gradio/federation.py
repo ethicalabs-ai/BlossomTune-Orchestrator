@@ -119,10 +119,12 @@ def check_participant_status(pid_to_check: str, email: str, activation_code: str
             if not cfg.SPACE_ID
             else f"{cfg.SPACE_ID.split('/')[1]}-{cfg.SPACE_ID.split('/')[0]}.hf.space"
         )
+        superlink_hostname = cfg.SUPERLINK_HOST or hostname
+        superlink_port = str(cfg.SUPERLINK_PORT)
         connection_string = f"""### ✅ Approved
         Your request for ID `{participant_id}` has been approved.
         - **Your Assigned Partition ID:** `{partition_id}`
-        - **Superlink Address:** `{hostname}:9092`
+        - **Superlink Address:** `{superlink_hostname}:{superlink_port}`
 
         **Instructions:** Your Flower client code should use your assigned Partition ID to load the correct data subset.
         The server address is for your client's connection command.
