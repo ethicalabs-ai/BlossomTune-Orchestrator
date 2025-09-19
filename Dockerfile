@@ -56,6 +56,9 @@ COPY . .
 EXPOSE 9092
 EXPOSE 7860
 
+# Ensure PYTHONPATH for flower_apps
+ENV PYTHONPATH="${PYTHONPATH}:/app/"
+
 # Define the entrypoint and default command for the container
 ENTRYPOINT ["/app/docker_entrypoint.sh"]
 CMD ["gradio_app"]
