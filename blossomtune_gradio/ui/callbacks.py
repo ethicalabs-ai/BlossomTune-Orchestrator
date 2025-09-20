@@ -7,6 +7,7 @@ from blossomtune_gradio import config as cfg
 from blossomtune_gradio.logs import log
 from blossomtune_gradio import federation as fed
 from blossomtune_gradio import processing
+from blossomtune_gradio.settings import settings
 
 from . import components
 from . import auth
@@ -23,23 +24,26 @@ def get_full_status_update(
     profile: gr.OAuthProfile | None, oauth_token: gr.OAuthToken | None
 ):
     owner = auth.is_space_owner(profile, oauth_token)
-    auth_status = "Authenticating..."
+    auth_status = "Authenticating..."  # Initial state, not in schema
     is_on_space = cfg.SPACE_OWNER is not None
     hf_handle_val = ""
     hf_handle_interactive = not is_on_space
 
     if is_on_space:
         if profile:
-            auth_status = (
-                f"✅ Logged in as **{profile.username}**. You are the space owner."
-                if owner
-                else f"Logged in as: {profile.username}."
-            )
+            if owner:
+                auth_status = settings.get_text(
+                    "auth_status_logged_in_owner_md", profile=profile
+                )
+            else:
+                auth_status = settings.get_text(
+                    "auth_status_logged_in_user_md", profile=profile
+                )
             hf_handle_val = profile.username
         else:
-            auth_status = "⚠️ You are not logged in. Please log in with Hugging Face."
+            auth_status = settings.get_text("auth_status_not_logged_in_md")
     else:
-        auth_status = "Running in local mode. Admin controls enabled."
+        auth_status = settings.get_text("auth_status_local_mode_md")
 
     with sqlite3.connect(cfg.DB_PATH) as conn:
         pending_rows = conn.execute(
@@ -58,11 +62,11 @@ def get_full_status_update(
         and processing.process_store["runner"].poll() is None
     )
 
+    # Hardcode status text as it's not in the schema
     superlink_status = "🟢 Running" if superlink_is_running else "🔴 Not Running"
     runner_status = "🟢 Running" if runner_is_running else "🔴 Not Running"
 
-    # --- Start of Fix ---
-    # Use gr.update() to modify existing components instead of creating new ones.
+    # Hardcode button text as it's not in the schema
     if superlink_is_running:
         superlink_btn_update = gr.update(value="🛑 Stop Superlink", variant="stop")
     else:
@@ -78,7 +82,6 @@ def get_full_status_update(
     return {
         components.admin_panel: gr.update(visible=owner),
         components.auth_status_md: gr.update(value=auth_status),
-        # components.log_output: gr.update(value=log.output),
         components.superlink_status_public_txt: gr.update(value=superlink_status),
         components.superlink_status_admin_txt: gr.update(value=superlink_status),
         components.runner_status_txt: gr.update(value=runner_status),
@@ -107,6 +110,7 @@ def toggle_superlink(
 ):
     """Toggles the Superlink process on or off."""
     if not auth.is_space_owner(profile, oauth_token):
+        # Hardcode warning text as it's not in the schema
         gr.Warning("You are not authorized to perform this operation.")
         return
     if (
@@ -127,6 +131,7 @@ def toggle_runner(
 ):
     """Toggles the Runner process on or off."""
     if not auth.is_space_owner(profile, oauth_token):
+        # Hardcode warning text as it's not in the schema
         gr.Warning("You are not authorized to perform this operation.")
         return
     if (
@@ -147,17 +152,14 @@ def on_select_pending(pending_data: list, evt: gr.SelectData):
     if not evt.index:
         return "", ""
 
-    # Ensure pending_data is a Pandas DataFrame
     pending_df = pd.DataFrame(
         pending_data, columns=["Participant ID", "HF Handle", "Email"]
     )
 
     row_index = evt.index[0]
-    # Use pending_df.empty to check for truthiness
     if pending_df.empty or row_index >= len(pending_df):
         return "", ""
 
-    # Use .iloc to safely access the row by index
     participant_id = pending_df.iloc[row_index, 0]
     return participant_id, str(fed.get_next_partion_id())
 
@@ -169,7 +171,7 @@ def on_check_participant_status(
     if is_on_space and not profile:
         return {
             components.request_status_md: gr.update(
-                "### ❌ Authentication Required\n**Please log in with Hugging Face to request to join the federation.**"
+                value=settings.get_text("auth_required_md")
             )
         }
 
@@ -177,13 +179,14 @@ def on_check_participant_status(
     if not user_hf_handle or not user_hf_handle.strip():
         return {
             components.request_status_md: gr.update(
-                value="Hugging Face handle cannot be empty."
+                value=settings.get_text("hf_handle_empty_md")
             )
         }
 
     pid_to_check = user_hf_handle.strip()
     email_to_add = email.strip()
     activation_code_to_check = activation_code.strip()
+    # The federation module is responsible for getting the correct text from settings
     _, message = fed.check_participant_status(
         pid_to_check, email_to_add, activation_code_to_check
     )
@@ -191,6 +194,7 @@ def on_check_participant_status(
 
 
 def on_manage_fed_request(participant_id: str, partition_id: str, action: str):
+    # The federation module is responsible for getting the correct text from settings
     result, message = fed.manage_request(participant_id, partition_id, action)
     if result:
         gr.Info(message)

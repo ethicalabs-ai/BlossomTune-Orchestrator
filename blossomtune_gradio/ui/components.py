@@ -1,7 +1,10 @@
 import gradio as gr
 
 
+# This component's value is updated dynamically by callbacks.
+# We'll use a simple initial value here as the schema doesn't define an "authenticating" state.
 auth_status_md = gr.Markdown("Authenticating...", render=False)
+
 superlink_status_public_txt = gr.Textbox(
     "🔴 Not Running", label="Superlink Status", interactive=False, render=False
 )
@@ -13,11 +16,13 @@ log_output = gr.Textbox(
     show_copy_button=True,
     render=False,
 )
+# The button's text/variant is updated dynamically by callbacks.
 superlink_toggle_btn = gr.Button("🚀 Start Superlink", variant="secondary")
+
 hf_handle_tb = gr.Textbox(
     label="Your Hugging Face Handle",
     placeholder="Enter for local testing...",
-    interactive=True,  # Will be updated by get_full_status_update
+    interactive=True,  # This is controlled by callbacks
     render=False,
 )
 email_tb = gr.Textbox(
@@ -37,7 +42,6 @@ superlink_status_admin_txt = gr.Textbox(
     interactive=False,
     render=False,
 )
-superlink_toggle_btn = gr.Button("🚀 Start Superlink", variant="secondary")
 runner_status_txt = gr.Textbox(
     "🔴 Not Running", label="Runner Status", interactive=False, render=False
 )
@@ -52,7 +56,9 @@ run_id_tb = gr.Textbox(label="Run ID", placeholder="e.g., run_123")
 num_partitions_tb = gr.Textbox(
     label="Total Partitions", value="10", placeholder="e.g., 10", render=False
 )
-request_status_md = gr.Markdown()
+# This component is populated by callbacks using the settings file.
+request_status_md = gr.Markdown(render=False)
+
 pending_requests_df = gr.DataFrame(
     headers=["Participant ID", "HF Handle", "Email"],
     label="Pending Requests (click a row to select)",

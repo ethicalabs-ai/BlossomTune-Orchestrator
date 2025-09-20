@@ -69,6 +69,7 @@ convention = "google"  # Accepts: "google", "numpy", or "pep257".
 [dependency-groups]
 dev = [
     "pytest>=8.4.1",
+    "pytest-mock>=3.15.1",
 ]
 
 [tool.pytest.ini_options]

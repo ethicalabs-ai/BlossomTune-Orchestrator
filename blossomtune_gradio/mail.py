@@ -74,7 +74,8 @@ class MailjetSender(EmailSender):
         """
         Sends an email using the Mailjet transactional API v3.1.
         """
-        if not all([hasattr(cfg, "SMTP_USER"), hasattr(cfg, "SMTP_PASSWORD")]):
+        # Check for truthy values, not just attribute existence.
+        if not (cfg.SMTP_USER and cfg.SMTP_PASSWORD):
             error_msg = "Mailjet API keys are not configured."
             log(f"[Email] {error_msg}")
             return False, error_msg

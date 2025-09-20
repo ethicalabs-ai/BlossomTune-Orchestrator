@@ -60,11 +60,11 @@
           "type": "string",
           "description": "Message for a denied participant. JINJA2: {{ participant_id }}"
         },
-        "participant_not_activated_warning": {
+        "participant_not_activated_warning_md": {
           "type": "string",
           "description": "Admin warning when trying to approve a non-activated user."
         },
-        "partition_in_use_warning": {
+        "partition_in_use_warning_md": {
           "type": "string",
           "description": "Admin warning for an already assigned partition ID. JINJA2: {{ partition_id }}"
         },
@@ -99,7 +99,7 @@
         "status_approved_md",
         "status_pending_md",
         "status_denied_md",
-        "participant_not_activated_warning",
+        "participant_not_activated_warning_md",
         "partition_in_use_warning",
         "auth_status_logged_in_owner_md",
         "auth_status_logged_in_user_md",

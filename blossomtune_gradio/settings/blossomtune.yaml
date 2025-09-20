@@ -62,7 +62,7 @@ ui:
     Your request for ID `{{ participant_id }}` has been denied.
 
   # --- Admin Panel ---
-  participant_not_activated_warning: |
+  participant_not_activated_warning_md: |
     This participant has not activated their email yet. Approval is not allowed.
     
   partition_in_use_warning: |
