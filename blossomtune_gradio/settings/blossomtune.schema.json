@@ -1,0 +1,112 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "BlossomTune UI Configuration Schema",
+  "description": "Schema for validating the blossomtune.yaml UI text configuration.",
+  "type": "object",
+  "properties": {
+    "ui": {
+      "type": "object",
+      "description": "Contains all user-interface text templates.",
+      "properties": {
+        "welcome_message_md": {
+          "type": "string",
+          "description": "Message shown to welcome the user."
+        },
+        "error_message_md": {
+          "type": "string",
+          "description": "Message shown when an error occurs."
+        },
+        "auth_required_md": {
+          "type": "string",
+          "description": "Message shown when a user needs to log in."
+        },
+        "hf_handle_empty_md": {
+          "type": "string",
+          "description": "Error for an empty Hugging Face handle."
+        },
+        "invalid_email_md": {
+          "type": "string",
+          "description": "Error for an invalid email format."
+        },
+        "federation_full_md": {
+          "type": "string",
+          "description": "Message shown when no new participants can join."
+        },
+        "activation_invalid_md": {
+          "type": "string",
+          "description": "Error for an incorrect activation code."
+        },
+        "registration_submitted_md": {
+          "type": "string",
+          "description": "Confirmation after a user submits a join request."
+        },
+        "activation_successful_md": {
+          "type": "string",
+          "description": "Confirmation after successful email activation."
+        },
+        "missing_activation_code_md": {
+          "type": "string",
+          "description": "Message prompting the user to enter their activation code."
+        },
+        "status_approved_md": {
+          "type": "string",
+          "description": "Message for an approved participant, including connection details. JINJA2: {{ participant_id }}, {{ partition_id }}, {{ superlink_hostname }}, {{ num_partitions }}"
+        },
+        "status_pending_md": {
+          "type": "string",
+          "description": "Status message for a request awaiting admin review."
+        },
+        "status_denied_md": {
+          "type": "string",
+          "description": "Message for a denied participant. JINJA2: {{ participant_id }}"
+        },
+        "participant_not_activated_warning": {
+          "type": "string",
+          "description": "Admin warning when trying to approve a non-activated user."
+        },
+        "partition_in_use_warning": {
+          "type": "string",
+          "description": "Admin warning for an already assigned partition ID. JINJA2: {{ partition_id }}"
+        },
+        "auth_status_logged_in_owner_md": {
+          "type": "string",
+          "description": "Auth status for the space owner. JINJA2: {{ profile.username }}"
+        },
+        "auth_status_logged_in_user_md": {
+          "type": "string",
+          "description": "Auth status for a regular logged-in user. JINJA2: {{ profile.username }}"
+        },
+        "auth_status_not_logged_in_md": {
+          "type": "string",
+          "description": "Auth status when the user is not logged in."
+        },
+        "auth_status_local_mode_md": {
+          "type": "string",
+          "description": "Auth status when running the app locally."
+        }
+      },
+      "required": [
+        "welcome_message_md",
+        "error_message_md",
+        "auth_required_md",
+        "hf_handle_empty_md",
+        "invalid_email_md",
+        "federation_full_md",
+        "activation_invalid_md",
+        "registration_submitted_md",
+        "activation_successful_md",
+        "missing_activation_code_md",
+        "status_approved_md",
+        "status_pending_md",
+        "status_denied_md",
+        "participant_not_activated_warning",
+        "partition_in_use_warning",
+        "auth_status_logged_in_owner_md",
+        "auth_status_logged_in_user_md",
+        "auth_status_not_logged_in_md",
+        "auth_status_local_mode_md"
+      ]
+    }
+  },
+  "required": ["ui"]
+}

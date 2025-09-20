@@ -2,6 +2,8 @@ import os
 
 from blossomtune_gradio import util
 
+# BlossomTune yaml config path
+BLOSSOMTUNE_CONFIG = os.getenv("BLOSSOMTUNE_CONFIG", None)
 
 # HF Space ID
 SPACE_ID = os.getenv("SPACE_ID", "ethicalabs/BlossomTune-Orchestrator")
