@@ -9,7 +9,7 @@ def test_validate_email_valid(monkeypatch):
     """Tests a syntactically valid email with an existing MX record."""
     # Mock the dns.resolver.query to return a successful result.
     mock_query = MagicMock()
-    monkeypatch.setattr(dns.resolver, "query", mock_query)
+    monkeypatch.setattr(dns.resolver, "resolve", mock_query)
 
     email = "test@google.com"
     assert validate_email(email) is True
@@ -28,7 +28,7 @@ def test_validate_email_no_mx_record(monkeypatch):
     """Tests a domain that exists but has no MX record."""
     # Mock the dns.resolver.query to raise a NoAnswer exception.
     mock_query = MagicMock(side_effect=dns.resolver.NoAnswer)
-    monkeypatch.setattr(dns.resolver, "query", mock_query)
+    monkeypatch.setattr(dns.resolver, "resolve", mock_query)
 
     email = "user@example.com"
     assert validate_email(email) is False
@@ -39,7 +39,7 @@ def test_validate_email_non_existent_domain(monkeypatch):
     """Tests a domain that does not exist."""
     # Mock the dns.resolver.query to raise an NXDOMAIN exception.
     mock_query = MagicMock(side_effect=dns.resolver.NXDOMAIN)
-    monkeypatch.setattr(dns.resolver, "query", mock_query)
+    monkeypatch.setattr(dns.resolver, "resolve", mock_query)
 
     email = "user@not-a-real-domain-123.com"
     assert validate_email(email) is False

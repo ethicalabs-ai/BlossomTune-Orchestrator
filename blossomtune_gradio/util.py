@@ -22,7 +22,7 @@ def validate_email(email_address: str) -> bool:
     # DNS MX record validation
     try:
         domain = email_address.rsplit("@", 1)[-1]
-        dns.resolver.query(domain, "MX")
+        dns.resolver.resolve(domain, "MX")
         return True
     except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN, IndexError):
         return False
