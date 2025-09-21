@@ -1,7 +1,6 @@
 import os
 import shutil
 import sqlite3
-import importlib
 import threading
 import subprocess
 
@@ -70,10 +69,11 @@ def start_runner(
             (num_partitions,),
         )
         conn.commit()
-    try:
-        runner_app_path = os.path.dirname(importlib.import_module(runner_app).__file__)
-    except ModuleNotFoundError:
-        return False, f"Unable to find app module '{runner_app}'."
+
+    runner_app_path = runner_app.replace(".", os.path.sep)
+    if not os.path.exists(runner_app_path):
+        return False, f"Unable to find app path '{runner_app_path}'."
+
     command = [
         shutil.which("flwr"),
         "run",
