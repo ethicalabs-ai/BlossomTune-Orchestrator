@@ -6,6 +6,7 @@ from datetime import datetime
 
 from blossomtune_gradio import config as cfg
 from blossomtune_gradio import mail
+from blossomtune_gradio.settings import settings
 
 
 def generate_participant_id(length=6):
@@ -24,7 +25,6 @@ def check_participant_status(pid_to_check: str, email: str, activation_code: str
     """Handles a participant's request to join, activate, or check status."""
     with sqlite3.connect(cfg.DB_PATH) as conn:
         cursor = conn.cursor()
-        # NOTE: Assumes DB schema is updated with `is_activated` and `activation_code`
         if activation_code:
             cursor.execute(
                 "SELECT participant_id, status, partition_id, is_activated, activation_code FROM requests WHERE hf_handle = ? AND email = ? AND activation_code = ?",
@@ -44,22 +44,16 @@ def check_participant_status(pid_to_check: str, email: str, activation_code: str
     # Case 1: New user registration
     if result is None:
         if activation_code:
-            return (
-                False,
-                "### ❌ Activation code is not valid, or participant hasn't subscribed yet.",
-            )
+            return (False, settings.get_text("activation_invalid_md"))
         if not email or "@" not in email:
-            return False, "Please provide a valid email address."
+            return (False, settings.get_text("invalid_email_md"))
 
         with sqlite3.connect(cfg.DB_PATH) as conn:
             cursor = conn.cursor()
             cursor.execute("SELECT COUNT(*) FROM requests WHERE status = 'approved'")
             approved_count = cursor.fetchone()[0]
             if approved_count >= cfg.MAX_NUM_NODES:
-                return (
-                    False,
-                    "### ❌ Federation Full\n**We're sorry, but we cannot accept new participants at this time.**",
-                )
+                return (False, settings.get_text("federation_full_md"))
 
         participant_id = generate_participant_id()
         new_activation_code = generate_activation_code()
@@ -78,10 +72,7 @@ def check_participant_status(pid_to_check: str, email: str, activation_code: str
                         0,
                     ),
                 )
-            return (
-                True,
-                "✅ **Registration Submitted!** Please check your email for an activation code to complete your request.",
-            )
+            return (True, settings.get_text("registration_submitted_md"))
         else:
             return (False, message)
 
@@ -96,21 +87,12 @@ def check_participant_status(pid_to_check: str, email: str, activation_code: str
                     "UPDATE requests SET is_activated = 1 WHERE hf_handle = ?",
                     (pid_to_check,),
                 )
-            return (
-                True,
-                "✅ **Activation Successful!** Your request is now pending review by an administrator.",
-            )
+            return (True, settings.get_text("activation_successful_md"))
         else:
-            return (
-                False,
-                "### ❌ Activation code is not valid, or participant hasn't subscribed yet.",
-            )
+            return (False, settings.get_text("activation_invalid_md"))
     else:
         if not activation_code:
-            (
-                False,
-                "⏳ **Missing Activation Code.** Please check your email and enter the activation code you received.",
-            )
+            return (False, settings.get_text("missing_activation_code_md"))
 
     # Case 3: Activated user is checking their status
     if status == "approved":
@@ -120,30 +102,21 @@ def check_participant_status(pid_to_check: str, email: str, activation_code: str
             else f"{cfg.SPACE_ID.split('/')[1]}-{cfg.SPACE_ID.split('/')[0]}.hf.space"
         )
         superlink_hostname = cfg.SUPERLINK_HOST or hostname
-        superlink_port = str(cfg.SUPERLINK_PORT)
-        connection_string = f"""### ✅ Approved
-        Your request for ID `{participant_id}` has been approved.
-        - **Your Assigned Partition ID:** `{partition_id}`
-        - **Superlink Address:** `{superlink_hostname}:{superlink_port}`
 
-        **Instructions:** Your Flower client code should use your assigned Partition ID to load the correct data subset.
-        The server address is for your client's connection command.
-        
-        *Example `flower-supernode` command:*
-        ```bash
-        flower-supernode --superlink {hostname}:9092 --insecure --node-config "partition-id={partition_id} num-partitions={num_partitions}"
-        ```
-        """
+        connection_string = settings.get_text(
+            "status_approved_md",
+            participant_id=participant_id,
+            partition_id=partition_id,
+            superlink_hostname=superlink_hostname,
+            num_partitions=num_partitions,
+        )
         return True, connection_string
     elif status == "pending":
-        return (
-            False,
-            "### ⏳ Pending\nYour request has been activated and is awaiting administrator review.",
-        )
+        return (False, settings.get_text("status_pending_md"))
     else:  # Denied
         return (
             False,
-            f"### ❌ Denied\nYour request for ID `{participant_id}` has been denied.",
+            settings.get_text("status_denied_md", participant_id=participant_id),
         )
 
 
@@ -159,7 +132,6 @@ def manage_request(participant_id: str, partition_id: str, action: str):
         p_id_int = int(partition_id)
         with sqlite3.connect(cfg.DB_PATH) as conn:
             cursor = conn.cursor()
-            # Check if participant is activated before approval
             cursor.execute(
                 "SELECT is_activated FROM requests WHERE participant_id = ?",
                 (participant_id,),
@@ -168,10 +140,9 @@ def manage_request(participant_id: str, partition_id: str, action: str):
             if not is_activated_res or not is_activated_res[0]:
                 return (
                     False,
-                    "This participant has not activated their email yet. Approval is not allowed.",
+                    settings.get_text("participant_not_activated_warning_md"),
                 )
 
-            # Check if the partition ID is already in use by an approved participant
             cursor.execute(
                 "SELECT 1 FROM requests WHERE partition_id = ? AND status = 'approved'",
                 (p_id_int,),
@@ -179,7 +150,9 @@ def manage_request(participant_id: str, partition_id: str, action: str):
             if cursor.fetchone():
                 return (
                     False,
-                    f"Partition ID {p_id_int} is already assigned. Please choose a different one.",
+                    settings.get_text(
+                        "partition_in_use_warning_md", partition_id=p_id_int
+                    ),
                 )
 
             conn.execute(
