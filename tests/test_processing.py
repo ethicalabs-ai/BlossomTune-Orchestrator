@@ -87,7 +87,7 @@ def test_start_runner_missing_args():
 
 
 @patch("blossomtune_gradio.processing.os.path.exists", return_value=False)
-def test_start_runner_app_path_not_found(mock_exists):
+def test_start_runner_app_path_not_found(mock_exists, in_memory_db):
     """Verify start_runner fails if the app path doesn't exist."""
     mock_superlink = MagicMock()
     mock_superlink.poll.return_value = None
