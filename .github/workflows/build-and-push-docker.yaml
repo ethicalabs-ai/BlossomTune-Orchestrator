@@ -3,6 +3,10 @@ name: ci
 on:
   push:
     branches: [main]
+  workflow_run:
+    workflows: ["pre-commit", "python-ci"]
+    types:
+      - completed
 
 jobs:
   docker:
