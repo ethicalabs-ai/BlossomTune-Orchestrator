@@ -6,6 +6,7 @@ from datetime import datetime
 
 from blossomtune_gradio import config as cfg
 from blossomtune_gradio import mail
+from blossomtune_gradio import util
 from blossomtune_gradio.settings import settings
 
 
@@ -45,7 +46,7 @@ def check_participant_status(pid_to_check: str, email: str, activation_code: str
     if result is None:
         if activation_code:
             return (False, settings.get_text("activation_invalid_md"))
-        if not email or "@" not in email:
+        if not util.validate_email(email):
             return (False, settings.get_text("invalid_email_md"))
 
         with sqlite3.connect(cfg.DB_PATH) as conn:
