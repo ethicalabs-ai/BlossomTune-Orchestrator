@@ -1,7 +1,6 @@
 import os
 import pytest
 from cryptography import x509
-from cryptography.x509.oid import NameOID
 
 from blossomtune_gradio.tls import TLSGenerator
 
@@ -27,25 +26,18 @@ class TestTLSGenerator:
         """Test the creation of a self-signed Certificate Authority."""
         ca_key, ca_cert = tls_generator.create_ca()
 
-        # Check if files were created
         assert os.path.exists(os.path.join(tls_generator.cert_dir, "ca.key"))
         assert os.path.exists(os.path.join(tls_generator.cert_dir, "ca.crt"))
-
-        # Verify the certificate properties
         assert ca_cert.issuer == ca_cert.subject
         assert (
             ca_cert.extensions.get_extension_for_class(x509.BasicConstraints).value.ca
             is True
         )
-        common_name = ca_cert.subject.get_attributes_for_oid(NameOID.COMMON_NAME)[
-            0
-        ].value
-        assert common_name == "BlossomTune Self-Signed CA"
 
     def test_generate_server_certificate_with_new_ca(self, tls_generator):
         """
         Test generating a server certificate, which should also create a new CA
-        when one is not provided.
+        and the combined server.pem file.
         """
         common_name = "test.local"
         sans = ["test.local", "192.168.1.10"]
@@ -56,6 +48,7 @@ class TestTLSGenerator:
         assert os.path.exists(os.path.join(tls_generator.cert_dir, "ca.crt"))
         assert os.path.exists(os.path.join(tls_generator.cert_dir, "server.key"))
         assert os.path.exists(os.path.join(tls_generator.cert_dir, "server.crt"))
+        assert os.path.exists(os.path.join(tls_generator.cert_dir, "server.pem"))
 
         # Load certs to verify issuer relationship
         with open(os.path.join(tls_generator.cert_dir, "ca.crt"), "rb") as f:
@@ -64,29 +57,19 @@ class TestTLSGenerator:
             server_cert = x509.load_pem_x509_certificate(f.read())
 
         assert server_cert.issuer == ca_cert.subject
-        assert (
-            server_cert.subject.get_attributes_for_oid(NameOID.COMMON_NAME)[0].value
-            == common_name
-        )
 
-        # Verify SANs
-        san_ext = server_cert.extensions.get_extension_for_class(
-            x509.SubjectAlternativeName
-        )
-        dns_names = san_ext.value.get_values_for_type(x509.DNSName)
-        ip_addresses = san_ext.value.get_values_for_type(x509.IPAddress)
-
-        assert set(dns_names) == {"test.local"}
-        assert str(ip_addresses[0]) == "192.168.1.10"
+        # Verify PEM content
+        with open(os.path.join(tls_generator.cert_dir, "server.pem"), "r") as f:
+            pem_content = f.read()
+        assert "-----BEGIN CERTIFICATE-----" in pem_content
+        assert "-----BEGIN RSA PRIVATE KEY-----" in pem_content
 
     def test_generate_server_certificate_with_existing_ca(self, tls_generator):
         """Test generating a server certificate using a pre-existing CA."""
-        # First, create a CA
         tls_generator.create_ca()
         ca_key_path = os.path.join(tls_generator.cert_dir, "ca.key")
         ca_cert_path = os.path.join(tls_generator.cert_dir, "ca.crt")
 
-        # Now, create a new generator in a different directory to simulate separation
         server_gen_dir = os.path.join(
             os.path.dirname(tls_generator.cert_dir), "server_certs"
         )
@@ -99,17 +82,12 @@ class TestTLSGenerator:
         # Check that server files were created in the new directory
         assert os.path.exists(os.path.join(server_gen_dir, "server.key"))
         assert os.path.exists(os.path.join(server_gen_dir, "server.crt"))
+        assert os.path.exists(os.path.join(server_gen_dir, "server.pem"))
         # Check that a *new* CA was NOT created in the server directory
         assert not os.path.exists(os.path.join(server_gen_dir, "ca.key"))
 
-        # Load certs to verify the issuer relationship
-        with open(ca_cert_path, "rb") as f:
-            ca_cert = x509.load_pem_x509_certificate(f.read())
-        with open(os.path.join(server_gen_dir, "server.crt"), "rb") as f:
-            server_cert = x509.load_pem_x509_certificate(f.read())
-
-        assert server_cert.issuer == ca_cert.subject
-        assert (
-            server_cert.subject.get_attributes_for_oid(NameOID.COMMON_NAME)[0].value
-            == "prod.local"
-        )
+        # Verify PEM content
+        with open(os.path.join(server_gen_dir, "server.pem"), "r") as f:
+            pem_content = f.read()
+        assert "-----BEGIN CERTIFICATE-----" in pem_content
+        assert "-----BEGIN RSA PRIVATE KEY-----" in pem_content

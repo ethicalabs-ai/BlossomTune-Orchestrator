@@ -8,7 +8,6 @@ from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.backends import default_backend
 
-
 log = logging.getLogger(__name__)
 
 
@@ -82,7 +81,7 @@ class TLSGenerator:
         ca_cert_path: str | None = None,
     ):
         """
-        Generates a server key and signs a certificate for it.
+        Generates a server key, signs a certificate, and creates a combined server.pem file.
         - If a CA is provided, it uses it.
         - Otherwise, it generates a new self-signed CA first.
         """
@@ -99,12 +98,7 @@ class TLSGenerator:
         else:
             ca_private_key, ca_cert = self.create_ca()
 
-        # Prepare server cert details
-        subject = x509.Name(
-            [
-                x509.NameAttribute(NameOID.COMMON_NAME, common_name),
-            ]
-        )
+        subject = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, common_name)])
         san_list = [x509.DNSName(common_name)]
         if sans:
             for name in set(sans):
@@ -113,7 +107,6 @@ class TLSGenerator:
                 except ValueError:
                     san_list.append(x509.DNSName(name))
 
-        # Sign the server certificate
         builder = (
             x509.CertificateBuilder()
             .subject_name(subject)
@@ -126,7 +119,21 @@ class TLSGenerator:
         )
         server_cert = builder.sign(ca_private_key, hashes.SHA256(), default_backend())
 
+        # Save the individual server certificate (.crt)
         server_cert_path = os.path.join(self.cert_dir, "server.crt")
+        server_cert_bytes = server_cert.public_bytes(serialization.Encoding.PEM)
         with open(server_cert_path, "wb") as f:
-            f.write(server_cert.public_bytes(serialization.Encoding.PEM))
+            f.write(server_cert_bytes)
         log.info(f"Server certificate saved to {server_cert_path}")
+
+        # Create the combined server.pem file for Flower Superlink
+        server_key_bytes = server_private_key.private_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PrivateFormat.TraditionalOpenSSL,
+            encryption_algorithm=serialization.NoEncryption(),
+        )
+        server_pem_path = os.path.join(self.cert_dir, "server.pem")
+        with open(server_pem_path, "wb") as f:
+            f.write(server_cert_bytes)
+            f.write(server_key_bytes)
+        log.info(f"Server PEM file (cert + key) saved to {server_pem_path}")

@@ -26,3 +26,6 @@ SUPERLINK_PORT = int(os.getenv("SUPERLINK_PORT", 9092))
 TLS_CERT_DIR = os.getenv("TLS_CERT_DIR", "./certs/")
 TLS_CA_KEY_PATH = os.getenv("TLS_CA_KEY_PATH", False)
 TLS_CA_CERT_PATH = os.getenv("TLS_CA_CERT_PATH", False)
+
+# BlossomTune cert - TO be can be distributed to the participangs (supernodes).
+BLOSSOMTUNE_TLS_CERT_PATH = os.getenv("BLOSSOMTUNE_TLS_CERT_PATH", "./certs/server.crt")
