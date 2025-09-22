@@ -21,3 +21,8 @@ SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")
 EMAIL_PROVIDER = os.getenv("EMAIL_PROVIDER", "smtp")
 SUPERLINK_HOST = os.getenv("SUPERLINK_HOST", "")
 SUPERLINK_PORT = int(os.getenv("SUPERLINK_PORT", 9092))
+
+# TLS root cert path. For production only.
+TLS_CERT_DIR = os.getenv("TLS_CERT_DIR", "./certs/")
+TLS_CA_KEY_PATH = os.getenv("TLS_CA_KEY_PATH", False)
+TLS_CA_CERT_PATH = os.getenv("TLS_CA_CERT_PATH", False)
