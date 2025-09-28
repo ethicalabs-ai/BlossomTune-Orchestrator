@@ -37,6 +37,11 @@ def run_process(command, process_key):
 
 
 def start_superlink():
+    # Do not start an internal process if in external mode.
+    if cfg.SUPERLINK_MODE == "external":
+        log.warning("start_superlink called while in external mode. Operation aborted.")
+        return False, "Application is in external Superlink mode."
+
     if process_store["superlink"] and process_store["superlink"].poll() is None:
         return False, "Superlink process is already running."
     command = [shutil.which("flower-superlink"), "--insecure"]
