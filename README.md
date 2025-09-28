@@ -77,6 +77,50 @@ python -m blossomtune_gradio
 
 The application will be accessible via a local URL provided by Gradio.
 
+## Generating Self-Signed Certificates for Local Development (Docker)
+
+When running the application with `docker-compose`, the `superlink` service requires TLS certificates to enable secure connections.
+
+For local development, you can generate a self-signed Certificate Authority (CA) and a `localhost` certificate using the provided script.
+
+**Step 1: Run the Certificate Generator**
+
+Execute the interactive TLS generation script located in the `blossomtune_gradio` directory:
+
+```bash
+python3 -m blossomtune_gradio.generate_tls
+```
+
+**Step 2: Choose the Development Option**
+
+When prompted, select option **1** to generate a self-signed certificate for `localhost`.
+
+```text
+===== BlossomTune TLS Certificate Generator =====
+Select an option:
+  1. Generate a self-signed 'localhost' certificate (for Development)
+  2. Generate a server certificate using the main CA (for Production)
+  3. Exit
+Enter your choice [1]: 1
+```
+
+The script will create a new directory named `certificates_localhost` containing the generated CA (`ca.crt`) and the server certificate files (`server.key`, `server.crt`, `server.pem`).
+
+**Step 3: Copy Certificates to the Data Directory**
+
+The `docker-compose.yml` file is configured to mount a local `./data/certs` directory into the `superlink` container. You must copy the essential certificate files into this location:
+
+```bash
+cp certificates_localhost/ca.crt ./data/certs/
+cp certificates_localhost/server.key ./data/certs/
+cp certificates_localhost/server.pem ./data/certs/
+```
+
+Once these files are in place, you can start the services using `docker compose up`.
+
+The Superlink will automatically find and use these certificates to secure its connections.
+
+
 ## Usage Guide
 
 ### For Participants
