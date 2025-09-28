@@ -1,0 +1,45 @@
+services:
+  gradio_app:
+    image: ethicalabs/blossomtune-orchestrator:latest
+    container_name: gradio_app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["gradio_app"]
+    ports:
+      - "7860:7860" # Expose the Gradio port to the host machine
+    volumes:
+      - ./data/db:/data/db # Mount the database directory for persistence
+      - ./data/certs:/data/certs:ro # Mount TLS certificates (read-only)
+      - ./data/keys:/data/keys:rw   # Mount authentication keys (read-write)
+      - ./data/cache:/root/.cache # Mount Hugging Face cache for models/datasets
+    depends_on:
+      - superlink # Optional: Ensures superlink starts before the UI
+    environment:
+      HF_TOKEN: ${HF_TOKEN}
+      SUPERLINK_MODE: external
+      SUPERLINK_HOST: host.docker.internal
+  superlink:
+    image: ethicalabs/blossomtune-orchestrator:latest
+    container_name: superlink
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["superlink"]
+    ports:
+      - "127.0.0.1:9092:9092" # Port for SuperNode connections
+      - "9093:9093" # Port for Flower CLI (e.g., flwr run)
+    volumes:
+      - ./data/certs:/data/certs:ro # Mount TLS certificates (read-only)
+      - ./data/keys:/data/keys:ro   # Mount authentication keys (read-only)
+      - ./data/results:/data/results # Mount results directory for persisting run artifacts
+  mailhog:
+    image: mailhog/mailhog
+    container_name: mailhog
+    restart: always
+    volumes:
+      - ./mailhog.auth:/mailhog.auth:ro
+      - ./data:/data:rw
+    ports:
+      - "1025:1025"
+      - "8025:8025"

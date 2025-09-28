@@ -10,7 +10,9 @@ SPACE_ID = os.getenv("SPACE_ID", "ethicalabs/BlossomTune-Orchestrator")
 SPACE_OWNER = os.getenv("SPACE_OWNER", SPACE_ID.split("/")[0] if SPACE_ID else None)
 
 # Use persistent storage if available
-DB_PATH = "/data/federation.db" if os.path.isdir("/data") else "federation.db"
+DB_PATH = (
+    "/data/db/federation.db" if os.path.isdir("/data/db") else "./data/db/federation.db"
+)
 MAX_NUM_NODES = int(os.getenv("MAX_NUM_NODES", "20"))
 SMTP_SENDER = os.getenv("SMTP_SENDER", "hello@ethicalabs.ai")
 SMTP_SERVER = os.getenv("SMTP_SERVER", "localhost")
@@ -19,13 +21,19 @@ SMTP_REQUIRE_TLS = util.strtobool(os.getenv("SMTP_REQUIRE_TLS", "false"))
 SMTP_USER = os.getenv("SMTP_USER", "")
 SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")
 EMAIL_PROVIDER = os.getenv("EMAIL_PROVIDER", "smtp")
-SUPERLINK_HOST = os.getenv("SUPERLINK_HOST", "")
+SUPERLINK_HOST = os.getenv("SUPERLINK_HOST", "127.0.0.1:9092")
 SUPERLINK_PORT = int(os.getenv("SUPERLINK_PORT", 9092))
+SUPERLINK_MODE = os.getenv("SUPERLINK_MODE", "internal").lower()  # Or external
 
 # TLS root cert path. For production only.
 TLS_CERT_DIR = os.getenv("TLS_CERT_DIR", "./certs/")
 TLS_CA_KEY_PATH = os.getenv("TLS_CA_KEY_PATH", False)
 TLS_CA_CERT_PATH = os.getenv("TLS_CA_CERT_PATH", False)
 
-# BlossomTune cert - TO be can be distributed to the participangs (supernodes).
-BLOSSOMTUNE_TLS_CERT_PATH = os.getenv("BLOSSOMTUNE_TLS_CERT_PATH", "./certs/server.crt")
+# BlossomTune cert - To be distributed to the participants (supernodes).
+BLOSSOMTUNE_TLS_CERT_PATH = os.getenv(
+    "BLOSSOMTUNE_TLS_CERT_PATH",
+    "/data/certs/server.crt"
+    if os.path.isdir("/data/certs")
+    else "./data/certs/server.crt",
+)
