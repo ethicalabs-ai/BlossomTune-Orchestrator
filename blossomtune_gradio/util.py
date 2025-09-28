@@ -1,5 +1,30 @@
 import re
+import socket
 import dns.resolver
+
+
+def is_port_open(host: str, port: int, timeout: float = 1.0) -> bool:
+    """
+    Checks if a TCP port is open on a given host.
+
+    Args:
+        host: The hostname or IP address to check.
+        port: The port number to check.
+        timeout: The connection timeout in seconds.
+
+    Returns:
+        True if the port is open and a connection can be established,
+        False otherwise.
+    """
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.settimeout(timeout)
+            s.connect((host, port))
+        print(f"TCP check successful: Port {port} is open on {host}.")
+        return True
+    except (socket.timeout, ConnectionRefusedError, OSError) as e:
+        print(f"TCP check failed: Port {port} on {host} is not open. Error: {e}")
+        return False
 
 
 def validate_email(email_address: str) -> bool:

@@ -241,6 +241,7 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "cryptography" },
     { name = "dnspython" },
     { name = "pytest" },
     { name = "pytest-mock" },
@@ -262,6 +263,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "cryptography", specifier = ">=44.0.3" },
     { name = "dnspython", specifier = ">=2.8.0" },
     { name = "pytest", specifier = ">=8.4.1" },
     { name = "pytest-mock", specifier = ">=3.15.1" },

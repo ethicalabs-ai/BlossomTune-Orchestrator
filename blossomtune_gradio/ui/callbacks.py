@@ -8,6 +8,7 @@ from blossomtune_gradio.logs import log
 from blossomtune_gradio import federation as fed
 from blossomtune_gradio import processing
 from blossomtune_gradio.settings import settings
+from blossomtune_gradio import util
 
 from . import components
 from . import auth
@@ -24,7 +25,7 @@ def get_full_status_update(
     profile: gr.OAuthProfile | None, oauth_token: gr.OAuthToken | None
 ):
     owner = auth.is_space_owner(profile, oauth_token)
-    auth_status = "Authenticating..."  # Initial state, not in schema
+    auth_status = "Authenticating..."
     is_on_space = cfg.SPACE_OWNER is not None
     hf_handle_val = ""
     hf_handle_interactive = not is_on_space
@@ -53,26 +54,41 @@ def get_full_status_update(
             "SELECT participant_id, hf_handle, email, partition_id FROM requests WHERE status = 'approved' ORDER BY timestamp DESC"
         ).fetchall()
 
-    superlink_is_running = (
-        processing.process_store["superlink"]
-        and processing.process_store["superlink"].poll() is None
-    )
+    # Superlink Status Logic
+    superlink_btn_update = gr.update()  # Default empty update
+
+    if cfg.SUPERLINK_MODE == "internal":
+        superlink_is_running = (
+            processing.process_store["superlink"]
+            and processing.process_store["superlink"].poll() is None
+        )
+        superlink_status = "🟢 Running" if superlink_is_running else "🔴 Not Running"
+        if superlink_is_running:
+            superlink_btn_update = gr.update(
+                value="🛑 Stop Superlink", variant="stop", interactive=True
+            )
+        else:
+            superlink_btn_update = gr.update(
+                value="🚀 Start Superlink", variant="secondary", interactive=True
+            )
+
+    elif cfg.SUPERLINK_MODE == "external":
+        if not cfg.SUPERLINK_HOST:
+            superlink_status = "🔴 Not Configured"
+        else:
+            is_open = util.is_port_open(cfg.SUPERLINK_HOST, cfg.SUPERLINK_PORT)
+            superlink_status = "🟢 Running" if is_open else "🔴 Not Running"
+        # Disable the button in external mode
+        superlink_btn_update = gr.update(value="Managed Externally", interactive=False)
+    else:
+        superlink_status = "⚠️ Invalid Mode"
+        superlink_btn_update = gr.update(interactive=False)
+
     runner_is_running = (
         processing.process_store["runner"]
         and processing.process_store["runner"].poll() is None
     )
-
-    # Hardcode status text as it's not in the schema
-    superlink_status = "🟢 Running" if superlink_is_running else "🔴 Not Running"
     runner_status = "🟢 Running" if runner_is_running else "🔴 Not Running"
-
-    # Hardcode button text as it's not in the schema
-    if superlink_is_running:
-        superlink_btn_update = gr.update(value="🛑 Stop Superlink", variant="stop")
-    else:
-        superlink_btn_update = gr.update(
-            value="🚀 Start Superlink", variant="secondary"
-        )
 
     if runner_is_running:
         runner_btn_update = gr.update(value="🛑 Stop Runner", variant="stop")

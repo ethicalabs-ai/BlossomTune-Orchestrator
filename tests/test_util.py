@@ -1,8 +1,43 @@
 import pytest
+import socket
 import dns.resolver
 from unittest.mock import MagicMock
 
-from blossomtune_gradio.util import validate_email, strtobool
+from blossomtune_gradio.util import is_port_open, validate_email, strtobool
+
+
+def test_is_port_open_success(mocker):
+    """
+    Tests the case where the port is open and the connection succeeds.
+    """
+    mock_socket = mocker.patch("blossomtune_gradio.util.socket.socket")
+    mock_socket.return_value.__enter__.return_value.connect.return_value = None
+
+    result = is_port_open("testhost", 1234)
+
+    assert result is True
+    # Verify that the socket was created and connect was called with the correct args
+    mock_socket.return_value.__enter__.return_value.settimeout.assert_called_once_with(
+        1.0
+    )
+    mock_socket.return_value.__enter__.return_value.connect.assert_called_once_with(
+        ("testhost", 1234)
+    )
+
+
+@pytest.mark.parametrize("exception", [ConnectionRefusedError, socket.timeout, OSError])
+def test_is_port_open_failures(mocker, exception):
+    """
+    Tests various failure scenarios where the port is not open.
+    - ConnectionRefusedError: The host actively refuses the connection.
+    - socket.timeout: The connection attempt times out.
+    - OSError: A generic network error occurs.
+    """
+    mock_socket = mocker.patch("blossomtune_gradio.util.socket.socket")
+    mock_socket.return_value.__enter__.return_value.connect.side_effect = exception
+
+    result = is_port_open("testhost", 1234)
+    assert result is False
 
 
 def test_validate_email_valid(monkeypatch):
