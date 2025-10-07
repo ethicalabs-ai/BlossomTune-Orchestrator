@@ -59,4 +59,4 @@ options.backend.client-resources.num-gpus = 0.0 # at most 4 ClientApp will run i
 
 [tool.flwr.federations.local-deployment]
 address = "0.0.0.0:9093"
-insecure = true
+insecure = false
