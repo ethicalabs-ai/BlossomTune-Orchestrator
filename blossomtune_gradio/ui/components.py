@@ -88,3 +88,6 @@ partition_id_tb = gr.Textbox(
     placeholder="Auto-filled on selection...",
     render=False,
 )
+ca_cert_download = gr.File(
+    label="Download CA Certificate (ca.crt)", visible=False, render=False
+)

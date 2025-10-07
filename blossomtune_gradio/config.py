@@ -40,4 +40,8 @@ BLOSSOMTUNE_TLS_CERT_PATH = os.getenv(
 
 # Flower Apps
 FLOWER_APPS = os.getenv("FLOWER_APPS", ["flower_apps.quickstart_huggingface"])
-FLOWER_APPS = FLOWER_APPS if isinstance(FLOWER_APPS, list) else [app.strip() for app in FLOWER_APPS.split(",")]
+FLOWER_APPS = (
+    FLOWER_APPS
+    if isinstance(FLOWER_APPS, list)
+    else [app.strip() for app in FLOWER_APPS.split(",")]
+)
