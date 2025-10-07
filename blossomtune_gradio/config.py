@@ -30,7 +30,9 @@ TLS_CERT_DIR = os.getenv("TLS_CERT_DIR", "./certs/")
 TLS_CA_KEY_PATH = os.getenv("TLS_CA_KEY_PATH", False)
 TLS_CA_CERT_PATH = os.getenv("TLS_CA_CERT_PATH", False)
 
-PROJECT_PATH = os.path.realpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+PROJECT_PATH = os.path.realpath(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+)
 
 # BlossomTune cert - To be distributed to the participants (supernodes).
 BLOSSOMTUNE_TLS_CERT_PATH = os.getenv(
