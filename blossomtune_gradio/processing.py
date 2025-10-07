@@ -88,6 +88,8 @@ def start_runner(
         "run",
         runner_app_path,
         "local-deployment",
+        "--federation-config",
+        f"address={cfg.SUPERLINK_HOST} root-certificates={cfg.BLOSSOMTUNE_TLS_CERT_PATH}",
         "--stream",
     ]
     threading.Thread(target=run_process, args=(command, "runner"), daemon=True).start()
