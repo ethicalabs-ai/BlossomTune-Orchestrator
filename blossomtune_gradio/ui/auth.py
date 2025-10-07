@@ -1,5 +1,6 @@
 import gradio as gr
 from huggingface_hub import whoami
+from requests.exceptions import HTTPError
 
 
 from blossomtune_gradio import config as cfg
@@ -10,7 +11,10 @@ def is_space_owner(profile: gr.OAuthProfile | None, oauth_token: gr.OAuthToken |
     if cfg.SPACE_OWNER is None:
         return True
     if oauth_token:
-        org_names = [org["name"] for org in whoami(oauth_token.token)["orgs"]]
+        try:
+            org_names = [org["name"] for org in whoami(oauth_token.token)["orgs"]]
+        except HTTPError:
+            return False
     else:
         org_names = []
     return profile is not None and (

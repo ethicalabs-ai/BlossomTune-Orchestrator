@@ -70,6 +70,8 @@ convention = "google"  # Accepts: "google", "numpy", or "pep257".
 dev = [
     "cryptography>=44.0.3",
     "dnspython>=2.8.0",
+    "mlx-lm>=0.28.2",
+    "mlx[cpu]>=0.29.2",
     "pytest>=8.4.1",
     "pytest-mock>=3.15.1",
 ]

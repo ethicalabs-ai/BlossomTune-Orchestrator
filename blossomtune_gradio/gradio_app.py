@@ -32,6 +32,7 @@ with gr.Blocks(theme=gr.themes.Soft(), title="Flower Superlink & Runner") as dem
             )
             check_status_btn = gr.Button("Submit Request / Activate", variant="primary")
             request_status_md = components.request_status_md.render()
+            ca_cert_download = components.ca_cert_download.render()
             check_status_btn.click(
                 fn=callbacks.on_check_participant_status,
                 inputs=[hf_handle_tb, email_tb, activation_code_tb],

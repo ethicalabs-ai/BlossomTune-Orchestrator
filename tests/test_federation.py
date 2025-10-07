@@ -45,10 +45,11 @@ class TestCheckParticipantStatus:
     ):
         """Verify successful registration for a new user."""
         mock_mail.return_value = (True, "")
-        success, message = fed.check_participant_status(
+        success, message, download = fed.check_participant_status(
             "new_user", "new@example.com", ""
         )
         assert success is True
+        assert download is None
         assert message == "mock_registration_submitted_md"
 
         # Verify the user was added to the database
@@ -58,17 +59,21 @@ class TestCheckParticipantStatus:
 
     def test_new_user_invalid_email(self, in_memory_db, mock_settings):
         """Verify registration fails with an invalid email."""
-        success, message = fed.check_participant_status("user", "invalid-email", "")
+        success, message, download = fed.check_participant_status(
+            "user", "invalid-email", ""
+        )
         assert success is False
+        assert download is None
         assert message == "mock_invalid_email_md"
 
     def test_new_user_federation_full(self, in_memory_db, mock_settings, mocker):
         """Verify registration fails when the federation is full."""
         mocker.patch("blossomtune_gradio.federation.cfg.MAX_NUM_NODES", 0)
-        success, message = fed.check_participant_status(
+        success, message, download = fed.check_participant_status(
             "another_user", "another@example.com", ""
         )
         assert success is False
+        assert download is None
         assert message == "mock_federation_full_md"
 
     def test_user_activation_success(self, in_memory_db, mock_settings):
@@ -81,10 +86,11 @@ class TestCheckParticipantStatus:
         )
         in_memory_db.commit()
 
-        success, message = fed.check_participant_status(
+        success, message, download = fed.check_participant_status(
             "test_user", "test@example.com", "ABCDEF"
         )
         assert success is True
+        assert download is None
         assert message == "mock_activation_successful_md"
         # Verify the user is now activated
         cursor.execute(
@@ -102,10 +108,11 @@ class TestCheckParticipantStatus:
         )
         in_memory_db.commit()
 
-        success, message = fed.check_participant_status(
+        success, message, download = fed.check_participant_status(
             "test_user", "test@example.com", "WRONGCODE"
         )
         assert success is False
+        assert download is None
         assert message == "mock_activation_invalid_md"
 
     def test_status_check_approved(self, in_memory_db, mock_settings):
@@ -125,10 +132,11 @@ class TestCheckParticipantStatus:
             ),
         )
         in_memory_db.commit()
-        success, message = fed.check_participant_status(
+        success, message, download = fed.check_participant_status(
             "approved_user", "approved@example.com", "GHIJKL"
         )
         assert success is True
+        assert download is not None
         assert "mock_status_approved_md" in message
 
 

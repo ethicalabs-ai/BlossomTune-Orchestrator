@@ -1,4 +1,5 @@
 import gradio as gr
+from blossomtune_gradio import config as cfg
 
 
 # This component's value is updated dynamically by callbacks.
@@ -47,9 +48,8 @@ runner_status_txt = gr.Textbox(
 )
 runner_toggle_btn = gr.Button("▶️ Start Federated Run", variant="primary")
 runner_app_dd = gr.Dropdown(
-    ["flower_apps.quickstart_huggingface"],
+    cfg.FLOWER_APPS,
     label="Select Runner App",
-    value="flower_apps.quickstart_huggingface",
     render=False,
 )
 run_id_tb = gr.Textbox(label="Run ID", placeholder="e.g., run_123")
@@ -87,4 +87,7 @@ partition_id_tb = gr.Textbox(
     label="Assign Partition ID",
     placeholder="Auto-filled on selection...",
     render=False,
+)
+ca_cert_download = gr.File(
+    label="Download CA Certificate (ca.crt)", visible=False, render=False
 )

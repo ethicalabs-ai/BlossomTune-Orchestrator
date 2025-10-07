@@ -45,16 +45,16 @@ def check_participant_status(pid_to_check: str, email: str, activation_code: str
     # Case 1: New user registration
     if result is None:
         if activation_code:
-            return (False, settings.get_text("activation_invalid_md"))
+            return (False, settings.get_text("activation_invalid_md"), None)
         if not util.validate_email(email):
-            return (False, settings.get_text("invalid_email_md"))
+            return (False, settings.get_text("invalid_email_md"), None)
 
         with sqlite3.connect(cfg.DB_PATH) as conn:
             cursor = conn.cursor()
             cursor.execute("SELECT COUNT(*) FROM requests WHERE status = 'approved'")
             approved_count = cursor.fetchone()[0]
             if approved_count >= cfg.MAX_NUM_NODES:
-                return (False, settings.get_text("federation_full_md"))
+                return (False, settings.get_text("federation_full_md"), None)
 
         participant_id = generate_participant_id()
         new_activation_code = generate_activation_code()
@@ -73,9 +73,9 @@ def check_participant_status(pid_to_check: str, email: str, activation_code: str
                         0,
                     ),
                 )
-            return (True, settings.get_text("registration_submitted_md"))
+            return (True, settings.get_text("registration_submitted_md"), None)
         else:
-            return (False, message)
+            return (False, message, None)
 
     # Existing user
     participant_id, status, partition_id, is_activated, stored_code = result
@@ -88,9 +88,9 @@ def check_participant_status(pid_to_check: str, email: str, activation_code: str
                     "UPDATE requests SET is_activated = 1 WHERE hf_handle = ?",
                     (pid_to_check,),
                 )
-            return (True, settings.get_text("activation_successful_md"))
+            return (True, settings.get_text("activation_successful_md"), None)
         else:
-            return (False, settings.get_text("activation_invalid_md"))
+            return (False, settings.get_text("activation_invalid_md"), None)
     else:
         if not activation_code:
             return (False, settings.get_text("missing_activation_code_md"))
@@ -111,13 +111,15 @@ def check_participant_status(pid_to_check: str, email: str, activation_code: str
             superlink_hostname=superlink_hostname,
             num_partitions=num_partitions,
         )
-        return True, connection_string
+        # TODO: build and provide .blossomfile for download
+        return (True, connection_string, cfg.BLOSSOMTUNE_TLS_CERT_PATH)
     elif status == "pending":
         return (False, settings.get_text("status_pending_md"))
     else:  # Denied
         return (
             False,
             settings.get_text("status_denied_md", participant_id=participant_id),
+            None,
         )
 
 

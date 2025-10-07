@@ -203,10 +203,15 @@ def on_check_participant_status(
     email_to_add = email.strip()
     activation_code_to_check = activation_code.strip()
     # The federation module is responsible for getting the correct text from settings
-    _, message = fed.check_participant_status(
+    _, message, download = fed.check_participant_status(
         pid_to_check, email_to_add, activation_code_to_check
     )
-    return {components.request_status_md: gr.update(value=message)}
+    return {
+        components.request_status_md: gr.update(value=message),
+        components.ca_cert_download: gr.update(
+            value=download or "", visible=True if download else False
+        ),
+    }
 
 
 def on_manage_fed_request(participant_id: str, partition_id: str, action: str):
