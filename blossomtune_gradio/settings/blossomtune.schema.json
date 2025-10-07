@@ -50,7 +50,7 @@
         },
         "status_approved_md": {
           "type": "string",
-          "description": "Message for an approved participant, including connection details. JINJA2: {{ participant_id }}, {{ partition_id }}, {{ superlink_hostname }}, {{ num_partitions }}"
+          "description": "Message for an approved participant, including connection details. JINJA2: {{ participant_id }}, {{ partition_id }}, {{ superlink_hostname }}, {{ superlink_port }}, {{ num_partitions }}"
         },
         "status_pending_md": {
           "type": "string",
