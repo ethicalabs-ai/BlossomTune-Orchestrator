@@ -43,14 +43,14 @@ ui:
     ### ✅ Approved
     Your request for ID `{{ participant_id }}` has been approved.
     - **Your Assigned Partition ID:** `{{ partition_id }}`
-    - **Superlink Address:** `{{ superlink_hostname }}:9092`
+    - **Superlink Address:** `{{ superlink_hostname }}:{{ superlink_port }}`
 
     **Instructions:** Your Flower client code should use your assigned Partition ID to load the correct data subset.
     The server address is for your client's connection command.
     
     *Example `flower-supernode` command:*
     ```bash
-    flower-supernode --superlink {{ superlink_hostname }}:9092 --node-config "partition-id={{ partition_id }} num-partitions={{ num_partitions }}" --root-certificates=server.crt
+    flower-supernode --superlink {{ superlink_hostname }}:{{ superlink_port}} --node-config "partition-id={{ partition_id }} num-partitions={{ num_partitions }}" --root-certificates=server.crt
 
     ```
 

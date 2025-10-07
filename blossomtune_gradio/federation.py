@@ -109,6 +109,7 @@ def check_participant_status(pid_to_check: str, email: str, activation_code: str
             participant_id=participant_id,
             partition_id=partition_id,
             superlink_hostname=superlink_hostname,
+            superlink_port=cfg.SUPERLINK_PORT,
             num_partitions=num_partitions,
         )
         # TODO: build and provide .blossomfile for download
