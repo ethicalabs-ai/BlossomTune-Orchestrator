@@ -58,11 +58,15 @@ def start_runner(
 ):
     if process_store["runner"] and process_store["runner"].poll() is None:
         return False, "A Runner process is already running."
-    if not (process_store["superlink"] and process_store["superlink"].poll() is None):
+    if (
+        not (process_store["superlink"] and process_store["superlink"].poll() is None)
+        and not cfg.SUPERLINK_MODE == "external"
+    ):
         return (
             False,
             "Superlink is not running. Please start it before starting the runner.",
         )
+    # TODO: check if external superlink is running
     if not all([runner_app, run_id, num_partitions]):
         return False, "Please provide a Runner App, Run ID, and Total Partitions."
     if not num_partitions.isdigit() or int(num_partitions) <= 0:
