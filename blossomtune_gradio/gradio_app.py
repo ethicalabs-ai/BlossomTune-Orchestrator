@@ -36,7 +36,7 @@ with gr.Blocks(theme=gr.themes.Soft(), title="Flower Superlink & Runner") as dem
             check_status_btn.click(
                 fn=callbacks.on_check_participant_status,
                 inputs=[hf_handle_tb, email_tb, activation_code_tb],
-                outputs=[request_status_md],
+                outputs=[request_status_md, ca_cert_download],
             )
 
         with gr.TabItem("Admin Panel"):

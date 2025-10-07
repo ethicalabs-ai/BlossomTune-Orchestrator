@@ -188,7 +188,8 @@ def on_check_participant_status(
         return {
             components.request_status_md: gr.update(
                 value=settings.get_text("auth_required_md")
-            )
+            ),
+            components.ca_cert_download: gr.update(value=None, visible=False),
         }
 
     user_hf_handle = profile.username if is_on_space else hf_handle
@@ -196,7 +197,8 @@ def on_check_participant_status(
         return {
             components.request_status_md: gr.update(
                 value=settings.get_text("hf_handle_empty_md")
-            )
+            ),
+            components.ca_cert_download: gr.update(value=None, visible=False),
         }
 
     pid_to_check = user_hf_handle.strip()
@@ -209,7 +211,7 @@ def on_check_participant_status(
     return {
         components.request_status_md: gr.update(value=message),
         components.ca_cert_download: gr.update(
-            value=download or "", visible=True if download else False
+            value=download, visible=True if download else False
         ),
     }
 
