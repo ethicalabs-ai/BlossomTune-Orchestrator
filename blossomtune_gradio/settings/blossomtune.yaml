@@ -50,7 +50,8 @@ ui:
     
     *Example `flower-supernode` command:*
     ```bash
-    flower-supernode --superlink {{ superlink_hostname }}:9092 --insecure --node-config "partition-id={{ partition_id }} num-partitions={{ num_partitions }}"
+    flower-supernode --superlink {{ superlink_hostname }}:9092 --node-config "partition-id={{ partition_id }} num-partitions={{ num_partitions }}" --root-certificates=server.crt
+
     ```
 
   status_pending_md: |

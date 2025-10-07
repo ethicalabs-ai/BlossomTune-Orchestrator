@@ -88,6 +88,8 @@ def start_runner(
         "run",
         runner_app_path,
         "local-deployment",
+        "--root-certificates",
+        cfg.BLOSSOMTUNE_TLS_CERT_PATH,
         "--stream",
     ]
     threading.Thread(target=run_process, args=(command, "runner"), daemon=True).start()
