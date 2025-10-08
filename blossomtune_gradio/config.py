@@ -26,7 +26,9 @@ SUPERLINK_HOST = os.getenv("SUPERLINK_HOST", "127.0.0.1:9092")
 SUPERLINK_PORT = int(os.getenv("SUPERLINK_PORT", 9092))
 SUPERLINK_CONTROL_API_PORT = int(os.getenv("SUPERLINK_CONTROL_API_PORT", 9093))
 SUPERLINK_MODE = os.getenv("SUPERLINK_MODE", "internal").lower()  # Or external
-RUN_MIGRATIONS_ON_STARTUP = util.strtobool(os.getenv("RUN_MIGRATIONS_ON_STARTUP", "true"))  # Set to false in prod.
+RUN_MIGRATIONS_ON_STARTUP = util.strtobool(
+    os.getenv("RUN_MIGRATIONS_ON_STARTUP", "true")
+)  # Set to false in prod.
 
 # TLS root cert path. For production only.
 TLS_CERT_DIR = os.getenv("TLS_CERT_DIR", "./certs/")

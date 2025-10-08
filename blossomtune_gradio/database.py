@@ -1,5 +1,7 @@
+from alembic import config
 from sqlalchemy import create_engine, Column, String, Integer, DateTime, func
 from sqlalchemy.orm import sessionmaker, declarative_base
+
 
 from blossomtune_gradio import config as cfg
 
@@ -55,7 +57,9 @@ def run_migrations():
     This should be called on application startup.
     """
     print("Running database migrations...")
-    alembic_cfg = Config("alembic.ini")
-    alembic_cfg.set_main_option("sqlalchemy.url", cfg.SQLALCHEMY_URL)
-    command.upgrade(alembic_cfg, "head")
-    print("Database migrations applied successfully.")
+    alembicArgs = [
+        "--raiseerr",
+        "upgrade",
+        "head",
+    ]
+    config.main(argv=alembicArgs)
