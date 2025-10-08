@@ -49,13 +49,13 @@ class Config(Base):
         return f"<Config(key='{self.key}', value='{self.value}')>"
 
 
-def get_db():
+def run_migrations():
     """
-    Dependency function to get a new database session.
-    This ensures that each request gets a clean session that is closed afterward.
+    Applies any pending Alembic migrations to the database.
+    This should be called on application startup.
     """
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+    print("Running database migrations...")
+    alembic_cfg = Config("alembic.ini")
+    alembic_cfg.set_main_option("sqlalchemy.url", cfg.SQLALCHEMY_URL)
+    command.upgrade(alembic_cfg, "head")
+    print("Database migrations applied successfully.")
