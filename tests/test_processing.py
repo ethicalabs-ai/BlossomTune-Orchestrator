@@ -2,6 +2,7 @@ import pytest
 from unittest.mock import MagicMock, patch
 
 from blossomtune_gradio import processing
+from blossomtune_gradio.database import Config
 
 
 @pytest.fixture(autouse=True)
@@ -12,8 +13,6 @@ def reset_process_store():
     """
     processing.process_store = {"superlink": None, "runner": None}
     yield
-    # Teardown is not strictly necessary as it's reset at the start,
-    # but it's good practice.
     processing.process_store = {"superlink": None, "runner": None}
 
 
@@ -29,18 +28,15 @@ def test_start_superlink_success(mock_which, mock_thread):
     assert success is True
     assert message == "Superlink process started."
     mock_thread.assert_called_once()
-    # Check that the thread is targeting the run_process function
     call_args = mock_thread.call_args
     assert call_args.kwargs["target"] == processing.run_process
-    # Check that the command is correct
     assert call_args.kwargs["args"][0] == ["/fake/path/flower-superlink", "--insecure"]
 
 
 def test_start_superlink_already_running(mocker):
     """Verify that start_superlink returns False if a process is already running."""
-    # Mock a running process
     mock_process = MagicMock()
-    mock_process.poll.return_value = None  # None means it's running
+    mock_process.poll.return_value = None
     processing.process_store["superlink"] = mock_process
 
     success, message = processing.start_superlink()
@@ -49,33 +45,60 @@ def test_start_superlink_already_running(mocker):
 
 
 @patch("blossomtune_gradio.processing.os.path.exists", return_value=True)
-@patch("blossomtune_gradio.processing.sqlite3.connect")
 @patch("blossomtune_gradio.processing.threading.Thread")
 @patch("blossomtune_gradio.processing.shutil.which", return_value="/fake/path/flwr")
-def test_start_runner_success(mock_which, mock_thread, mock_sqlite, mock_exists):
-    """Verify that start_runner successfully starts a thread when conditions are met."""
-    # Mock a running superlink process
+def test_start_runner_success_internal_superlink(
+    mock_which, mock_thread, mock_exists, db_session
+):
+    """Verify start_runner succeeds with an internal superlink and updates the DB."""
+    # Arrange: Mock a running internal superlink process
     mock_superlink = MagicMock()
     mock_superlink.poll.return_value = None
     processing.process_store["superlink"] = mock_superlink
 
-    success, message = processing.start_runner("app.main", "run1", "10")
+    # Act
+    success, message = processing.start_runner("app.main", "run1", "15")
 
+    # Assert
     assert success is True
     assert message == "Federation Run is starting...."
     mock_thread.assert_called_once()
-    mock_sqlite.assert_called_once()  # Check if DB was updated
+
+    # Verify DB was updated using SQLAlchemy
+    config_entry = db_session.query(Config).filter_by(key="num_partitions").first()
+    assert config_entry is not None
+    assert config_entry.value == "15"
 
 
-def test_start_runner_superlink_not_running():
-    """Verify start_runner fails if superlink is not running."""
+@patch("blossomtune_gradio.processing.os.path.exists", return_value=True)
+@patch("blossomtune_gradio.processing.threading.Thread")
+@patch("blossomtune_gradio.processing.shutil.which", return_value="/fake/path/flwr")
+def test_start_runner_success_external_superlink(
+    mock_which, mock_thread, mock_exists, db_session, mocker
+):
+    """Verify start_runner succeeds with an external superlink."""
+    # Arrange
+    mocker.patch("blossomtune_gradio.config.SUPERLINK_MODE", "external")
+    mocker.patch("blossomtune_gradio.util.is_port_open", return_value=True)
+
+    # Act
+    success, message = processing.start_runner("app.main", "run1", "10")
+
+    # Assert
+    assert success is True
+    assert message == "Federation Run is starting...."
+    mock_thread.assert_called_once()
+
+
+def test_start_runner_internal_superlink_not_running(db_session):
+    """Verify start_runner fails if internal superlink is not running."""
     processing.process_store["superlink"] = None
     success, message = processing.start_runner("app.main", "run1", "10")
     assert success is False
-    assert "Superlink is not running" in message
+    assert "Internal Superlink is not running" in message
 
 
-def test_start_runner_missing_args():
+def test_start_runner_missing_args(db_session):
     """Verify start_runner fails if arguments are missing."""
     mock_superlink = MagicMock()
     mock_superlink.poll.return_value = None
@@ -87,7 +110,7 @@ def test_start_runner_missing_args():
 
 
 @patch("blossomtune_gradio.processing.os.path.exists", return_value=False)
-def test_start_runner_app_path_not_found(mock_exists, in_memory_db):
+def test_start_runner_app_path_not_found(mock_exists, db_session):
     """Verify start_runner fails if the app path doesn't exist."""
     mock_superlink = MagicMock()
     mock_superlink.poll.return_value = None
@@ -101,7 +124,7 @@ def test_start_runner_app_path_not_found(mock_exists, in_memory_db):
 def test_stop_process_running():
     """Verify stop_process terminates a running process."""
     mock_process = MagicMock()
-    mock_process.poll.return_value = None  # Running
+    mock_process.poll.return_value = None
     processing.process_store["superlink"] = mock_process
 
     processing.stop_process("superlink")
@@ -118,7 +141,6 @@ def test_stop_process_not_running(mocker):
 
     processing.stop_process("superlink")
 
-    # Check that the specific "no process was running" log was called
     log_mock.assert_any_call(
         "[Superlink] Stop command received, but no process was running."
     )
