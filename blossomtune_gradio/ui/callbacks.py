@@ -46,15 +46,14 @@ def get_full_status_update(
     else:
         auth_status = settings.get_text("auth_status_local_mode_md")
 
-    # Use SQLAlchemy session to query the database
     with SessionLocal() as db:
-        pending_rows = (
+        pending_results = (
             db.query(Request.participant_id, Request.hf_handle, Request.email)
             .filter(Request.status == "pending", Request.is_activated == 1)
             .order_by(Request.timestamp.asc())
             .all()
         )
-        approved_rows = (
+        approved_results = (
             db.query(
                 Request.participant_id,
                 Request.hf_handle,
@@ -65,6 +64,10 @@ def get_full_status_update(
             .order_by(Request.timestamp.desc())
             .all()
         )
+
+    # Convert SQLAlchemy rows to simple lists
+    pending_rows = [list(row) for row in pending_results]
+    approved_rows = [list(row) for row in approved_results]
 
     # Superlink Status Logic
     superlink_btn_update = gr.update()
@@ -137,7 +140,6 @@ def toggle_superlink(
 ):
     """Toggles the Superlink process on or off."""
     if not auth.is_space_owner(profile, oauth_token):
-        # Hardcode warning text as it's not in the schema
         gr.Warning("You are not authorized to perform this operation.")
         return
     if (
@@ -158,7 +160,6 @@ def toggle_runner(
 ):
     """Toggles the Runner process on or off."""
     if not auth.is_space_owner(profile, oauth_token):
-        # Hardcode warning text as it's not in the schema
         gr.Warning("You are not authorized to perform this operation.")
         return
     if (
@@ -216,7 +217,7 @@ def on_check_participant_status(
     email_to_add = email.strip()
     activation_code_to_check = activation_code.strip()
 
-    _, message, download = fed.check_participant_status(
+    approved, message, download = fed.check_participant_status(
         pid_to_check, email_to_add, activation_code_to_check
     )
     return {
