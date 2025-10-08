@@ -1,12 +1,10 @@
 import gradio as gr
 
-from blossomtune_gradio import database as db
 from blossomtune_gradio.ui import components
 from blossomtune_gradio.ui import callbacks
 
 
 with gr.Blocks(theme=gr.themes.Soft(), title="Flower Superlink & Runner") as demo:
-    db.init()
     gr.Markdown("BlossomTune 🌸 Flower Superlink & Runner")
     with gr.Row():
         login_button = gr.LoginButton()
