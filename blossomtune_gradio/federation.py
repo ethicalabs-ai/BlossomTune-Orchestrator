@@ -1,13 +1,11 @@
 import string
 import secrets
-import sqlite3
-
-from datetime import datetime
 
 from blossomtune_gradio import config as cfg
 from blossomtune_gradio import mail
 from blossomtune_gradio import util
 from blossomtune_gradio.settings import settings
+from blossomtune_gradio.database import SessionLocal, Request, Config
 
 
 def generate_participant_id(length=6):
@@ -23,105 +21,99 @@ def generate_activation_code(length=8):
 
 
 def check_participant_status(pid_to_check: str, email: str, activation_code: str):
-    """Handles a participant's request to join, activate, or check status."""
-    with sqlite3.connect(cfg.DB_PATH) as conn:
-        cursor = conn.cursor()
+    """
+    Handles a participant's request to join, activate, or check status using SQLAlchemy.
+    Returns a tuple: (is_approved: bool, message: str, data: any | None)
+    The 'is_approved' boolean is True ONLY when the participant's final status is 'approved'.
+    """
+    with SessionLocal() as db:
+        query = db.query(Request).filter(
+            Request.hf_handle == pid_to_check, Request.email == email
+        )
         if activation_code:
-            cursor.execute(
-                "SELECT participant_id, status, partition_id, is_activated, activation_code FROM requests WHERE hf_handle = ? AND email = ? AND activation_code = ?",
-                (pid_to_check, email, activation_code),
+            query = query.filter(Request.activation_code == activation_code)
+
+        request = query.first()
+
+        num_partitions_config = (
+            db.query(Config).filter(Config.key == "num_partitions").first()
+        )
+        num_partitions = num_partitions_config.value if num_partitions_config else "10"
+
+        # Case 1: New user registration
+        if request is None:
+            if activation_code:
+                return (False, settings.get_text("activation_invalid_md"), None)
+            if not util.validate_email(email):
+                return (False, settings.get_text("invalid_email_md"), None)
+
+            approved_count = (
+                db.query(Request).filter(Request.status == "approved").count()
             )
-        else:
-            cursor.execute(
-                "SELECT participant_id, status, partition_id, is_activated, activation_code FROM requests WHERE hf_handle = ? AND email = ?",
-                (pid_to_check, email),
-            )
-        result = cursor.fetchone()
-
-        cursor.execute("SELECT value FROM config WHERE key = 'num_partitions'")
-        num_partitions_res = cursor.fetchone()
-        num_partitions = num_partitions_res[0] if num_partitions_res else "10"
-
-    # Case 1: New user registration
-    if result is None:
-        if activation_code:
-            return (False, settings.get_text("activation_invalid_md"), None)
-        if not util.validate_email(email):
-            return (False, settings.get_text("invalid_email_md"), None)
-
-        with sqlite3.connect(cfg.DB_PATH) as conn:
-            cursor = conn.cursor()
-            cursor.execute("SELECT COUNT(*) FROM requests WHERE status = 'approved'")
-            approved_count = cursor.fetchone()[0]
             if approved_count >= cfg.MAX_NUM_NODES:
                 return (False, settings.get_text("federation_full_md"), None)
 
-        participant_id = generate_participant_id()
-        new_activation_code = generate_activation_code()
-        mail_sent, message = mail.send_activation_email(email, new_activation_code)
-        if mail_sent:
-            with sqlite3.connect(cfg.DB_PATH) as conn:
-                conn.execute(
-                    "INSERT INTO requests (participant_id, status, timestamp, hf_handle, email, activation_code, is_activated) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                    (
-                        participant_id,
-                        "pending",
-                        datetime.utcnow().isoformat(),
-                        pid_to_check,
-                        email,
-                        new_activation_code,
-                        0,
-                    ),
-                )
-            return (True, settings.get_text("registration_submitted_md"), None)
-        else:
-            return (False, message, None)
+            participant_id = generate_participant_id()
+            new_activation_code = generate_activation_code()
+            mail_sent, message = mail.send_activation_email(email, new_activation_code)
 
-    # Existing user
-    participant_id, status, partition_id, is_activated, stored_code = result
-
-    # Case 2: User is activating their account
-    if not is_activated:
-        if activation_code == stored_code:
-            with sqlite3.connect(cfg.DB_PATH) as conn:
-                conn.execute(
-                    "UPDATE requests SET is_activated = 1 WHERE hf_handle = ?",
-                    (pid_to_check,),
+            if mail_sent:
+                new_request = Request(
+                    participant_id=participant_id,
+                    hf_handle=pid_to_check,
+                    email=email,
+                    activation_code=new_activation_code,
                 )
-            return (True, settings.get_text("activation_successful_md"), None)
-        else:
-            return (False, settings.get_text("activation_invalid_md"), None)
-    else:
+                db.add(new_request)
+                db.commit()
+                # A successful registration step, but not yet approved for federation.
+                return (False, settings.get_text("registration_submitted_md"), None)
+            else:
+                return (False, message, None)
+
+        # Case 2: User is activating their account
+        if not request.is_activated:
+            if activation_code == request.activation_code:
+                request.is_activated = 1
+                db.commit()
+                # A successful activation step, but not yet approved.
+                return (False, settings.get_text("activation_successful_md"), None)
+            else:
+                return (False, settings.get_text("activation_invalid_md"), None)
+
+        # At this point, user is activated.
+        # They must provide the activation code to check their final status.
         if not activation_code:
-            return (False, settings.get_text("missing_activation_code_md"))
+            return (False, settings.get_text("missing_activation_code_md"), None)
 
-    # Case 3: Activated user is checking their status
-    if status == "approved":
-        hostname = (
-            "localhost"
-            if not cfg.SPACE_ID
-            else f"{cfg.SPACE_ID.split('/')[1]}-{cfg.SPACE_ID.split('/')[0]}.hf.space"
-        )
-        superlink_hostname = cfg.SUPERLINK_HOST or hostname
+        # Case 3: Activated user is checking their final status
+        if request.status == "approved":
+            hostname = (
+                "localhost"
+                if not cfg.SPACE_ID
+                else f"{cfg.SPACE_ID.split('/')[1]}-{cfg.SPACE_ID.split('/')[0]}.hf.space"
+            )
+            superlink_hostname = cfg.SUPERLINK_HOST or hostname
 
-        connection_string = settings.get_text(
-            "status_approved_md",
-            participant_id=participant_id,
-            partition_id=partition_id,
-            superlink_hostname=superlink_hostname,
-            superlink_port=cfg.SUPERLINK_PORT,
-            num_partitions=num_partitions,
-        )
-        # TODO: build and provide .blossomfile for download
-        return (True, connection_string, cfg.BLOSSOMTUNE_TLS_CERT_PATH)
-    elif status == "pending":
-        return (False, settings.get_text("status_pending_md"))
-    else:  # Denied
-        return (
-            False,
-            settings.get_text("status_denied_md", participant_id=participant_id),
-            None,
-        )
+            connection_string = settings.get_text(
+                "status_approved_md",
+                participant_id=request.participant_id,
+                partition_id=request.partition_id,
+                superlink_hostname=superlink_hostname,
+                num_partitions=num_partitions,
+            )
+            # The user is fully approved. Return success and the cert path.
+            return (True, connection_string, cfg.BLOSSOMTUNE_TLS_CERT_PATH)
+        elif request.status == "pending":
+            return (False, settings.get_text("status_pending_md"), None)
+        else:  # Denied
+            return (
+                False,
+                settings.get_text(
+                    "status_denied_md", participant_id=request.participant_id
+                ),
+                None,
+            )
 
 
 def manage_request(participant_id: str, partition_id: str, action: str):
@@ -129,29 +121,31 @@ def manage_request(participant_id: str, partition_id: str, action: str):
     if not participant_id:
         return False, "Please select a participant from the pending requests table."
 
-    if action == "approve":
-        if not partition_id or not partition_id.isdigit():
-            return False, "Please provide a valid integer for the Partition ID."
+    with SessionLocal() as db:
+        request = (
+            db.query(Request).filter(Request.participant_id == participant_id).first()
+        )
+        if not request:
+            return False, "Participant not found."
 
-        p_id_int = int(partition_id)
-        with sqlite3.connect(cfg.DB_PATH) as conn:
-            cursor = conn.cursor()
-            cursor.execute(
-                "SELECT is_activated FROM requests WHERE participant_id = ?",
-                (participant_id,),
-            )
-            is_activated_res = cursor.fetchone()
-            if not is_activated_res or not is_activated_res[0]:
+        if action == "approve":
+            if not partition_id or not partition_id.isdigit():
+                return False, "Please provide a valid integer for the Partition ID."
+
+            p_id_int = int(partition_id)
+            if not request.is_activated:
                 return (
                     False,
                     settings.get_text("participant_not_activated_warning_md"),
                 )
 
-            cursor.execute(
-                "SELECT 1 FROM requests WHERE partition_id = ? AND status = 'approved'",
-                (p_id_int,),
+            existing_participant = (
+                db.query(Request)
+                .filter(Request.partition_id == p_id_int, Request.status == "approved")
+                .first()
             )
-            if cursor.fetchone():
+
+            if existing_participant:
                 return (
                     False,
                     settings.get_text(
@@ -159,20 +153,17 @@ def manage_request(participant_id: str, partition_id: str, action: str):
                     ),
                 )
 
-            conn.execute(
-                "UPDATE requests SET status = ?, partition_id = ? WHERE participant_id = ?",
-                ("approved", p_id_int, participant_id),
-            )
+            request.status = "approved"
+            request.partition_id = p_id_int
+            db.commit()
             return (
                 True,
                 f"Participant {participant_id} is allowed to join the federation.",
             )
-    else:  # Deny
-        with sqlite3.connect(cfg.DB_PATH) as conn:
-            conn.execute(
-                "UPDATE requests SET status = ?, partition_id = NULL WHERE participant_id = ?",
-                ("denied", participant_id),
-            )
+        else:  # Deny
+            request.status = "denied"
+            request.partition_id = None
+            db.commit()
             return (
                 True,
                 f"Participant {participant_id} is not allowed to join the federation.",
@@ -180,12 +171,14 @@ def manage_request(participant_id: str, partition_id: str, action: str):
 
 
 def get_next_partion_id() -> int:
-    with sqlite3.connect(cfg.DB_PATH) as conn:
-        cursor = conn.cursor()
-        cursor.execute(
-            "SELECT partition_id FROM requests WHERE status = 'approved' AND partition_id IS NOT NULL"
+    """Finds the lowest available partition ID."""
+    with SessionLocal() as db:
+        used_ids_query = (
+            db.query(Request.partition_id)
+            .filter(Request.status == "approved", Request.partition_id.isnot(None))
+            .all()
         )
-        used_ids = {row[0] for row in cursor.fetchall()}
+        used_ids = {row[0] for row in used_ids_query}
 
     next_id = 0
     while next_id in used_ids:

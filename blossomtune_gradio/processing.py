@@ -1,11 +1,12 @@
 import os
 import shutil
-import sqlite3
 import threading
 import subprocess
 
 from blossomtune_gradio.logs import log
 from blossomtune_gradio import config as cfg
+from blossomtune_gradio import util
+from blossomtune_gradio.database import SessionLocal, Config
 
 
 # In-memory store for background processes and logs
@@ -44,7 +45,9 @@ def start_superlink():
 
     if process_store["superlink"] and process_store["superlink"].poll() is None:
         return False, "Superlink process is already running."
-    command = [shutil.which("flower-superlink"), "--insecure"]
+
+    # The command needs to be adapted for TLS if it's not insecure
+    command = [shutil.which("flower-superlink"), "--insecure"]  # Placeholder
     threading.Thread(
         target=run_process, args=(command, "superlink"), daemon=True
     ).start()
@@ -58,31 +61,36 @@ def start_runner(
 ):
     if process_store["runner"] and process_store["runner"].poll() is None:
         return False, "A Runner process is already running."
-    if (
-        not (process_store["superlink"] and process_store["superlink"].poll() is None)
-        and not cfg.SUPERLINK_MODE == "external"
-    ):
+
+    # Check if the Superlink is running, respecting the configured mode
+    if cfg.SUPERLINK_MODE == "external":
+        if not util.is_port_open(cfg.SUPERLINK_HOST, cfg.SUPERLINK_PORT):
+            return False, "External Superlink is not running or unreachable."
+    elif not (process_store["superlink"] and process_store["superlink"].poll() is None):
         return (
             False,
-            "Superlink is not running. Please start it before starting the runner.",
+            "Internal Superlink is not running. Please start it before starting the runner.",
         )
-    # TODO: check if external superlink is running
+
     if not all([runner_app, run_id, num_partitions]):
         return False, "Please provide a Runner App, Run ID, and Total Partitions."
     if not num_partitions.isdigit() or int(num_partitions) <= 0:
         return False, "Total Partitions must be a positive integer."
 
-    with sqlite3.connect(cfg.DB_PATH) as conn:
-        conn.execute(
-            "UPDATE config SET value = ? WHERE key = 'num_partitions'",
-            (num_partitions,),
-        )
-        conn.commit()
+    # Update the number of partitions in the database using SQLAlchemy
+    with SessionLocal() as db:
+        config_entry = db.query(Config).filter(Config.key == "num_partitions").first()
+        if config_entry:
+            config_entry.value = num_partitions
+        else:
+            db.add(Config(key="num_partitions", value=num_partitions))
+        db.commit()
 
     runner_app_path = runner_app.replace(".", os.path.sep)
     if not os.path.exists(runner_app_path):
         return False, f"Unable to find app path '{runner_app_path}'."
 
+    # Construct the command for a TLS-enabled runner
     command = [
         shutil.which("flwr"),
         "run",

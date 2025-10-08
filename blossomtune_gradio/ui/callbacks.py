@@ -1,5 +1,4 @@
 import time
-import sqlite3
 import gradio as gr
 import pandas as pd
 
@@ -9,6 +8,7 @@ from blossomtune_gradio import federation as fed
 from blossomtune_gradio import processing
 from blossomtune_gradio.settings import settings
 from blossomtune_gradio import util
+from blossomtune_gradio.database import SessionLocal, Request
 
 from . import components
 from . import auth
@@ -46,16 +46,31 @@ def get_full_status_update(
     else:
         auth_status = settings.get_text("auth_status_local_mode_md")
 
-    with sqlite3.connect(cfg.DB_PATH) as conn:
-        pending_rows = conn.execute(
-            "SELECT participant_id, hf_handle, email FROM requests WHERE status = 'pending' AND is_activated = 1 ORDER BY timestamp ASC"
-        ).fetchall()
-        approved_rows = conn.execute(
-            "SELECT participant_id, hf_handle, email, partition_id FROM requests WHERE status = 'approved' ORDER BY timestamp DESC"
-        ).fetchall()
+    with SessionLocal() as db:
+        pending_results = (
+            db.query(Request.participant_id, Request.hf_handle, Request.email)
+            .filter(Request.status == "pending", Request.is_activated == 1)
+            .order_by(Request.timestamp.asc())
+            .all()
+        )
+        approved_results = (
+            db.query(
+                Request.participant_id,
+                Request.hf_handle,
+                Request.email,
+                Request.partition_id,
+            )
+            .filter(Request.status == "approved")
+            .order_by(Request.timestamp.desc())
+            .all()
+        )
+
+    # Convert SQLAlchemy rows to simple lists
+    pending_rows = [list(row) for row in pending_results]
+    approved_rows = [list(row) for row in approved_results]
 
     # Superlink Status Logic
-    superlink_btn_update = gr.update()  # Default empty update
+    superlink_btn_update = gr.update()
 
     if cfg.SUPERLINK_MODE == "internal":
         superlink_is_running = (
@@ -78,7 +93,6 @@ def get_full_status_update(
         else:
             is_open = util.is_port_open(cfg.SUPERLINK_HOST, cfg.SUPERLINK_PORT)
             superlink_status = "🟢 Running" if is_open else "🔴 Not Running"
-        # Disable the button in external mode
         superlink_btn_update = gr.update(value="Managed Externally", interactive=False)
     else:
         superlink_status = "⚠️ Invalid Mode"
@@ -126,7 +140,6 @@ def toggle_superlink(
 ):
     """Toggles the Superlink process on or off."""
     if not auth.is_space_owner(profile, oauth_token):
-        # Hardcode warning text as it's not in the schema
         gr.Warning("You are not authorized to perform this operation.")
         return
     if (
@@ -147,7 +160,6 @@ def toggle_runner(
 ):
     """Toggles the Runner process on or off."""
     if not auth.is_space_owner(profile, oauth_token):
-        # Hardcode warning text as it's not in the schema
         gr.Warning("You are not authorized to perform this operation.")
         return
     if (
@@ -204,8 +216,8 @@ def on_check_participant_status(
     pid_to_check = user_hf_handle.strip()
     email_to_add = email.strip()
     activation_code_to_check = activation_code.strip()
-    # The federation module is responsible for getting the correct text from settings
-    _, message, download = fed.check_participant_status(
+
+    approved, message, download = fed.check_participant_status(
         pid_to_check, email_to_add, activation_code_to_check
     )
     return {
@@ -217,7 +229,6 @@ def on_check_participant_status(
 
 
 def on_manage_fed_request(participant_id: str, partition_id: str, action: str):
-    # The federation module is responsible for getting the correct text from settings
     result, message = fed.manage_request(participant_id, partition_id, action)
     if result:
         gr.Info(message)
