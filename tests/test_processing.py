@@ -30,7 +30,8 @@ def test_start_superlink_success(mock_which, mock_thread):
     mock_thread.assert_called_once()
     call_args = mock_thread.call_args
     assert call_args.kwargs["target"] == processing.run_process
-    assert call_args.kwargs["args"][0] == ["/fake/path/flower-superlink", "--insecure"]
+    assert call_args.kwargs["args"][0][0] == "/fake/path/flower-superlink"
+    assert call_args.kwargs["args"][0][1] == "--ssl-ca-certfile"
 
 
 def test_start_superlink_already_running(mocker):

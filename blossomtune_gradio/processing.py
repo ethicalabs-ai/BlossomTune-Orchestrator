@@ -46,8 +46,15 @@ def start_superlink():
     if process_store["superlink"] and process_store["superlink"].poll() is None:
         return False, "Superlink process is already running."
 
-    # The command needs to be adapted for TLS if it's not insecure
-    command = [shutil.which("flower-superlink"), "--insecure"]  # Placeholder
+    command = [
+        shutil.which("flower-superlink"),
+        "--ssl-ca-certfile",
+        cfg.BLOSSOMTUNE_TLS_CA_CERTFILE,
+        "--ssl-certfile",
+        cfg.BLOSSOMTUNE_TLS_CERTFILE,
+        "--ssl-keyfile",
+        cfg.BLOSSOMTUNE_TLS_KEYFILE,
+    ]  # Placeholder
     threading.Thread(
         target=run_process, args=(command, "superlink"), daemon=True
     ).start()
@@ -97,7 +104,7 @@ def start_runner(
         runner_app_path,
         "local-deployment",
         "--federation-config",
-        f'address="{cfg.SUPERLINK_HOST}:{cfg.SUPERLINK_CONTROL_API_PORT}" root-certificates="{cfg.BLOSSOMTUNE_TLS_CERT_PATH}"',
+        f'address="{cfg.SUPERLINK_HOST}:{cfg.SUPERLINK_CONTROL_API_PORT}" root-certificates="{cfg.BLOSSOMTUNE_TLS_CA_CERTFILE}"',
         "--stream",
     ]
     threading.Thread(target=run_process, args=(command, "runner"), daemon=True).start()
