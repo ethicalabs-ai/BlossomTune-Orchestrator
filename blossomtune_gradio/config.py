@@ -50,12 +50,18 @@ BLOSSOMTUNE_TLS_CA_CERTFILE = os.path.join(BLOSSOMTUNE_TLS_CERT_PATH, "ca.crt")
 BLOSSOMTUNE_TLS_CERTFILE = os.path.join(BLOSSOMTUNE_TLS_CERT_PATH, "server.pem")
 BLOSSOMTUNE_TLS_KEYFILE = os.path.join(BLOSSOMTUNE_TLS_CERT_PATH, "server.key")
 
+# EC Auth - Keys
+AUTH_KEYS_DIR = os.getenv(
+    "AUTH_KEYS_DIR",
+    "/data/keys/"
+    if os.path.isdir("/data/keys")
+    else os.path.join(PROJECT_PATH, "./data/keys/"),
+)
+
 # EC Auth - CSV File
 AUTH_KEYS_CSV_PATH = os.getenv(
     "AUTH_KEYS_CSV_PATH",
-    "/data/keys/authorized_supernodes.csv"
-    if os.path.isdir("/data/keys")
-    else os.path.join(PROJECT_PATH, "./data/keys/authorized_supernodes.csv"),
+    os.path.join(AUTH_KEYS_DIR, "authorized_supernodes.csv"),
 )
 
 # Flower Apps
