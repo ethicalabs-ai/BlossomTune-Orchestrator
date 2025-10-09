@@ -1,6 +1,7 @@
 import os
 import string
 import secrets
+import tempfile
 
 from blossomtune_gradio import config as cfg
 from blossomtune_gradio import mail
@@ -93,10 +94,11 @@ def check_participant_status(pid_to_check: str, email: str, activation_code: str
             superlink_address = f"{cfg.SUPERLINK_HOST or hostname}:{cfg.SUPERLINK_PORT}"
 
             # Blossomfile Generation
+            blossomfile_tempdir = tempfile.mkdtemp()  # TODO: remove tempdirs
             try:
                 blossomfile_path = create_blossomfile(
                     participant_id=request.participant_id,
-                    output_dir="blossomfiles",  # TODO: temp dir
+                    output_dir=blossomfile_tempdir,
                     ca_cert_path=cfg.BLOSSOMTUNE_TLS_CA_CERTFILE,
                     auth_key_path=os.path.join(
                         cfg.AUTH_KEYS_DIR, f"{request.participant_id}.key"
