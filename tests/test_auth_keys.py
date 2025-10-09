@@ -1,5 +1,4 @@
 import os
-import csv
 import stat
 import pytest
 from cryptography.hazmat.primitives import serialization
@@ -44,7 +43,6 @@ class TestAuthKeyGenerator:
         assert pub_path == os.path.join(key_generator.key_dir, f"{participant_id}.pub")
 
         # 2. Check private key file permissions (security check)
-        # In non-Windows environments, check for 600 permissions.
         if os.name != "nt":
             file_mode = stat.S_IMODE(os.stat(priv_path).st_mode)
             assert file_mode == 0o600
@@ -54,12 +52,10 @@ class TestAuthKeyGenerator:
             private_key = serialization.load_pem_private_key(f.read(), password=None)
         with open(pub_path, "rb") as f:
             public_key = serialization.load_pem_public_key(f.read())
-            _ = f.read()  # Read again to get bytes
 
         assert isinstance(private_key, ec.EllipticCurvePrivateKey)
         assert isinstance(public_key, ec.EllipticCurvePublicKey)
 
-        # Check that the returned PEM string matches the public key
         generated_public_key = private_key.public_key()
         pem_from_private = generated_public_key.public_bytes(
             encoding=serialization.Encoding.PEM,
@@ -68,12 +64,12 @@ class TestAuthKeyGenerator:
         assert pub_pem == pem_from_private
 
 
-class TestRebuildCSV:
+class TestRebuildAuthorizedKeysFile:
     """Test suite for the rebuild_authorized_keys_csv function."""
 
-    def test_rebuild_csv_creates_file_with_header_for_empty_list(self, tmp_path):
-        """Verify a CSV with only a header is created for an empty participant list."""
-        key_dir = tmp_path / "csv_test"
+    def test_rebuild_creates_file_with_only_newline_for_empty_list(self, tmp_path):
+        """Verify an empty participant list results in a file with just a newline."""
+        key_dir = tmp_path / "keys_test"
         os.makedirs(key_dir)
         csv_path = os.path.join(key_dir, "authorized_supernodes.csv")
 
@@ -81,53 +77,45 @@ class TestRebuildCSV:
 
         assert os.path.exists(csv_path)
         with open(csv_path, "r") as f:
-            reader = csv.reader(f)
-            header = next(reader)
-            assert header == ["participant_id", "public_key_pem"]
-            # Check that there are no more rows
-            with pytest.raises(StopIteration):
-                next(reader)
+            content = f.read()
+        assert content == "\n"
 
-    def test_rebuild_csv_writes_correct_data(self, tmp_path):
-        """Verify the CSV is created with the correct participant data."""
-        key_dir = tmp_path / "csv_test"
+    def test_rebuild_writes_correct_single_line_format(self, tmp_path):
+        """Verify the file is created in the single-line, comma-separated format."""
+        key_dir = tmp_path / "keys_test"
         os.makedirs(key_dir)
         csv_path = os.path.join(key_dir, "authorized_supernodes.csv")
 
         participants = [
-            ("p1", "---BEGIN PUBLIC KEY---...p1...---END PUBLIC KEY---"),
-            ("p2", "---BEGIN PUBLIC KEY---...p2...---END PUBLIC KEY---"),
+            ("p1", "key1_part1\nkey1_part2\n"),
+            ("p2", "key2_part1\nkey2_part2\n"),
         ]
         rebuild_authorized_keys_csv(key_dir, participants)
 
         with open(csv_path, "r") as f:
-            reader = csv.reader(f)
-            header = next(reader)
-            row1 = next(reader)
-            row2 = next(reader)
-            assert header == ["participant_id", "public_key_pem"]
-            assert row1 == list(participants[0])
-            assert row2 == list(participants[1])
+            content = (
+                f.read().strip()
+            )  # Use strip() to remove the trailing newline for comparison
 
-    def test_rebuild_csv_overwrites_existing_file(self, tmp_path):
-        """Verify that an existing CSV file is correctly overwritten."""
-        key_dir = tmp_path / "csv_test"
+        expected_content = "key1_part1key1_part2,key2_part1key2_part2"
+        assert content == expected_content
+
+    def test_rebuild_overwrites_existing_file(self, tmp_path):
+        """Verify that an existing file is correctly overwritten with the new format."""
+        key_dir = tmp_path / "keys_test"
         os.makedirs(key_dir)
         csv_path = os.path.join(key_dir, "authorized_supernodes.csv")
 
         # First run with initial data
-        initial_participants = [("old_p1", "old_key_1")]
+        initial_participants = [("old_p1", "old_key_1\n")]
         rebuild_authorized_keys_csv(key_dir, initial_participants)
 
         # Second run with new data
-        new_participants = [("new_p1", "new_key_1"), ("new_p2", "new_key_2")]
+        new_participants = [("new_p1", "new_key_1\n"), ("new_p2", "new_key_2\n")]
         rebuild_authorized_keys_csv(key_dir, new_participants)
 
         with open(csv_path, "r") as f:
-            reader = csv.reader(f)
-            _ = next(reader)
-            rows = list(reader)
+            content = f.read().strip()
 
-        assert len(rows) == 2
-        assert rows[0] == list(new_participants[0])
-        assert rows[1] == list(new_participants[1])
+        expected_content = "new_key_1,new_key_2"
+        assert content == expected_content

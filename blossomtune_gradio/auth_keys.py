@@ -1,5 +1,4 @@
 import os
-import csv
 import logging
 from typing import List, Tuple
 from cryptography.hazmat.primitives.asymmetric import ec
@@ -12,10 +11,8 @@ def rebuild_authorized_keys_csv(
     key_dir: str, authorized_participants: List[Tuple[str, str]]
 ):
     """
-    Overwrites the public key CSV with a fresh list from a trusted source.
-
-    This function should be called before starting the Flower SuperLink to ensure
-    the list of authorized nodes is always in sync with the database.
+    Overwrites the public key file with a fresh list from a trusted source,
+    using the specific single-line format expected by Flower.
 
     Args:
         key_dir (str): The directory where the CSV will be stored.
@@ -23,13 +20,19 @@ def rebuild_authorized_keys_csv(
             where each tuple contains (participant_id, public_key_pem).
     """
     csv_path = os.path.join(key_dir, "authorized_supernodes.csv")
-    log.info(f"Rebuilding authorized keys CSV at: {csv_path}")
+    log.info(f"Rebuilding authorized keys file at: {csv_path}")
 
-    with open(csv_path, "w", newline="") as f:
-        writer = csv.writer(f, quoting=csv.QUOTE_ALL)
-        writer.writerow(["participant_id", "public_key_pem"])
-        for participant_id, public_key_pem in authorized_participants:
-            writer.writerow([participant_id, public_key_pem])
+    # Extract just the public key strings from the database results.
+    # The PEM format from the cryptography library includes newlines,
+    # which we must handle. A simple approach is to remove them.
+    public_keys = [pem.replace("\n", "") for _, pem in authorized_participants]
+
+    # Join all public keys into a single comma-separated string.
+    content = ",".join(public_keys)
+
+    # Write the single line to the file, followed by a newline.
+    with open(csv_path, "w") as f:
+        f.write(content + "\n")
 
     log.info(
         f"Successfully rebuilt {csv_path} with {len(authorized_participants)} keys."
@@ -76,16 +79,15 @@ class AuthKeyGenerator:
         return priv_key_path
 
     def _save_public_key_file(
-        self, private_key: ec.EllipticCurvePrivateKey, participant_id: str
+        self, private_key: ec.EllipticCurvePublicKey, participant_id: str
     ) -> str:
-        """Saves the public key to a .pub file."""
-        public_key = private_key.public_key()
+        """Saves the public key to a .pub file in OpenSSH format."""
         pub_key_path = os.path.join(self.key_dir, f"{participant_id}.pub")
         with open(pub_key_path, "wb") as f:
             f.write(
-                public_key.public_bytes(
-                    encoding=serialization.Encoding.PEM,
-                    format=serialization.PublicFormat.SubjectPublicKeyInfo,
+                private_key.public_key().public_bytes(
+                    encoding=serialization.Encoding.OpenSSH,
+                    format=serialization.PublicFormat.OpenSSH,
                 )
             )
         log.info(f"Public key for {participant_id} saved to {pub_key_path}")
