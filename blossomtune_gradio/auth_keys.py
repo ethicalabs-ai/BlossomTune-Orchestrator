@@ -26,7 +26,7 @@ def rebuild_authorized_keys_csv(
     log.info(f"Rebuilding authorized keys CSV at: {csv_path}")
 
     with open(csv_path, "w", newline="") as f:
-        writer = csv.writer(f)
+        writer = csv.writer(f, quoting=csv.QUOTE_ALL)
         writer.writerow(["participant_id", "public_key_pem"])
         for participant_id, public_key_pem in authorized_participants:
             writer.writerow([participant_id, public_key_pem])
