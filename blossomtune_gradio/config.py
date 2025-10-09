@@ -42,10 +42,13 @@ PROJECT_PATH = os.path.realpath(
 # BlossomTune cert - To be distributed to the participants (supernodes).
 BLOSSOMTUNE_TLS_CERT_PATH = os.getenv(
     "BLOSSOMTUNE_TLS_CERT_PATH",
-    "/data/certs/server.crt"
+    "/data/certs"
     if os.path.isdir("/data/certs")
-    else os.path.join(PROJECT_PATH, "./data/certs/server.crt"),
+    else os.path.join(PROJECT_PATH, "./data/certs"),
 )
+BLOSSOMTUNE_TLS_CA_CERTFILE = os.path.join(BLOSSOMTUNE_TLS_CERT_PATH, "ca.crt")
+BLOSSOMTUNE_TLS_CERTFILE = os.path.join(BLOSSOMTUNE_TLS_CERT_PATH, "server.pem")
+BLOSSOMTUNE_TLS_KEYFILE = os.path.join(BLOSSOMTUNE_TLS_CERT_PATH, "server.key")
 
 # Flower Apps
 FLOWER_APPS = os.getenv("FLOWER_APPS", ["flower_apps.quickstart_huggingface"])

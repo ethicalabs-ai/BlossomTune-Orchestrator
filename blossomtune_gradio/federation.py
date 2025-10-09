@@ -103,7 +103,7 @@ def check_participant_status(pid_to_check: str, email: str, activation_code: str
                 num_partitions=num_partitions,
             )
             # The user is fully approved. Return success and the cert path.
-            return (True, connection_string, cfg.BLOSSOMTUNE_TLS_CERT_PATH)
+            return (True, connection_string, cfg.BLOSSOMTUNE_TLS_CA_CERTFILE)
         elif request.status == "pending":
             return (False, settings.get_text("status_pending_md"), None)
         else:  # Denied
