@@ -34,7 +34,7 @@ class TestCheckParticipantStatus:
         """Verify successful registration for a new user."""
         mock_mail.return_value = (True, "")
         approved, message, download = fed.check_participant_status(
-            "new_user", "new@example.com", ""
+            "new_user", "hello@ethicalabs.ai", ""
         )
         assert approved is False
         assert download is None
@@ -43,7 +43,7 @@ class TestCheckParticipantStatus:
         # Verify the user was added to the database
         request = db_session.query(Request).filter_by(hf_handle="new_user").first()
         assert request is not None
-        assert request.email == "new@example.com"
+        assert request.email == "hello@ethicalabs.ai"
 
     def test_new_user_invalid_email(self, db_session, mock_settings):
         """Verify registration fails with an invalid email."""
@@ -108,7 +108,7 @@ class TestCheckParticipantStatus:
         assert download is None
         assert message == "mock_activation_invalid_md"
 
-    def test_status_check_approved(self, db_session, mock_settings):
+    def test_status_check_approved_unmanaged(self, db_session, mock_settings):
         """Verify the status check for an approved user."""
         approved_user = Request(
             participant_id="PID456",
@@ -125,9 +125,9 @@ class TestCheckParticipantStatus:
         approved, message, download = fed.check_participant_status(
             "approved_user", "approved@example.com", "GHIJKL"
         )
-        assert approved is True
-        assert download is not None
-        assert "mock_status_approved_md" in message
+        assert approved is False
+        assert download is None  # fed.manage_request is not used. download is None.
+        assert "An error occurred" in message
 
 
 class TestManageRequest:
@@ -147,7 +147,10 @@ class TestManageRequest:
 
         success, message = fed.manage_request("PENDING1", "10", "approve")
         assert success is True
-        assert "is allowed to join" in message
+        assert (
+            "Participant PENDING1 approved. Keys generated and registry updated."
+            in message
+        )
 
         # Verify status in DB
         updated_user = (
@@ -182,7 +185,7 @@ class TestManageRequest:
         db_session.commit()
         success, message = fed.manage_request("PENDING3", "", "deny")
         assert success is True
-        assert "is not allowed to join" in message
+        assert "Participant PENDING3 denied. Their access has been revoked." in message
 
         # Verify status in DB
         updated_user = (

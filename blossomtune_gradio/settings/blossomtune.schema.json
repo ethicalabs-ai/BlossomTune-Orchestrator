@@ -100,7 +100,7 @@
         "status_pending_md",
         "status_denied_md",
         "participant_not_activated_warning_md",
-        "partition_in_use_warning",
+        "partition_in_use_warning_md",
         "auth_status_logged_in_owner_md",
         "auth_status_logged_in_user_md",
         "auth_status_not_logged_in_md",

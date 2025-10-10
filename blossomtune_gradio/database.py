@@ -29,6 +29,7 @@ class Request(Base):
     hf_handle = Column(String, nullable=True)
     activation_code = Column(String, nullable=True)
     is_activated = Column(Integer, nullable=False, default=0)
+    public_key_pem = Column(String(), nullable=True)
 
     def __repr__(self):
         return (

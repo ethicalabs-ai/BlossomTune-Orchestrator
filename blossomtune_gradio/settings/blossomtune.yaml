@@ -66,7 +66,7 @@ ui:
   participant_not_activated_warning_md: |
     This participant has not activated their email yet. Approval is not allowed.
     
-  partition_in_use_warning: |
+  partition_in_use_warning_md: |
     Partition ID {{ partition_id }} is already assigned. Please choose a different one.
 
   # --- Authentication Status ---

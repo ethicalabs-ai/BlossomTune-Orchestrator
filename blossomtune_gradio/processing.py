@@ -54,7 +54,9 @@ def start_superlink():
         cfg.BLOSSOMTUNE_TLS_CERTFILE,
         "--ssl-keyfile",
         cfg.BLOSSOMTUNE_TLS_KEYFILE,
-    ]  # Placeholder
+        "--auth-list-public-keys",
+        cfg.AUTH_KEYS_CSV_PATH,
+    ]
     threading.Thread(
         target=run_process, args=(command, "superlink"), daemon=True
     ).start()
