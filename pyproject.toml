@@ -18,6 +18,9 @@ dependencies = [
     "mlx[cpu]>=0.29.2",
     "alembic>=1.16.5",
     "sqlalchemy>=2.0.43",
+    "cryptography>=44.0.3",
+    "dnspython>=2.8.0",
+    "mlx-lm>=0.28.2",
 ]
 
 [tool.uv.sources]
@@ -71,8 +74,6 @@ convention = "google"  # Accepts: "google", "numpy", or "pep257".
 
 [dependency-groups]
 dev = [
-    "cryptography>=44.0.3",
-    "dnspython>=2.8.0",
     "pytest>=8.4.1",
     "pytest-mock>=3.15.1",
 ]

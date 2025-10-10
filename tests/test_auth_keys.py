@@ -24,44 +24,34 @@ class TestAuthKeyGenerator:
         AuthKeyGenerator(key_dir=str(key_dir))
         assert os.path.exists(key_dir)
 
-    def test_generate_participant_keys_creates_files_and_returns_data(
+    def test_generate_participant_keys_creates_files_and_returns_openssh_with_comment(
         self, key_generator
     ):
         """
-        Verify that the main method generates all expected files and returns
-        the correct data tuple.
+        Verify the main method generates files and returns the public key
+        in the correct OpenSSH format including a comment.
         """
         participant_id = "participant_01"
-        priv_path, pub_path, pub_pem = key_generator.generate_participant_keys(
+        priv_path, pub_path, pub_ssh_string = key_generator.generate_participant_keys(
             participant_id
         )
 
-        # 1. Check if files exist
+        # 1. Check file existence and permissions
         assert os.path.exists(priv_path)
         assert os.path.exists(pub_path)
-        assert priv_path == os.path.join(key_generator.key_dir, f"{participant_id}.key")
-        assert pub_path == os.path.join(key_generator.key_dir, f"{participant_id}.pub")
-
-        # 2. Check private key file permissions (security check)
         if os.name != "nt":
             file_mode = stat.S_IMODE(os.stat(priv_path).st_mode)
             assert file_mode == 0o600
 
-        # 3. Verify key formats and consistency
-        with open(priv_path, "rb") as f:
-            private_key = serialization.load_pem_private_key(f.read(), password=None)
+        # 2. Verify that the returned string has three parts (type, key, comment)
+        assert pub_ssh_string.startswith("ecdsa-sha2-nistp384")
+        assert pub_ssh_string.endswith(participant_id)
+        assert len(pub_ssh_string.split(" ")) == 3
+
+        # 3. Verify that the public key file can be loaded as an SSH key
         with open(pub_path, "rb") as f:
-            public_key = serialization.load_pem_public_key(f.read())
-
-        assert isinstance(private_key, ec.EllipticCurvePrivateKey)
-        assert isinstance(public_key, ec.EllipticCurvePublicKey)
-
-        generated_public_key = private_key.public_key()
-        pem_from_private = generated_public_key.public_bytes(
-            encoding=serialization.Encoding.PEM,
-            format=serialization.PublicFormat.SubjectPublicKeyInfo,
-        ).decode("utf-8")
-        assert pub_pem == pem_from_private
+            public_key_from_file = serialization.load_ssh_public_key(f.read())
+        assert isinstance(public_key_from_file, ec.EllipticCurvePublicKey)
 
 
 class TestRebuildAuthorizedKeysFile:
@@ -71,11 +61,9 @@ class TestRebuildAuthorizedKeysFile:
         """Verify an empty participant list results in a file with just a newline."""
         key_dir = tmp_path / "keys_test"
         os.makedirs(key_dir)
+        rebuild_authorized_keys_csv(str(key_dir), [])
+
         csv_path = os.path.join(key_dir, "authorized_supernodes.csv")
-
-        rebuild_authorized_keys_csv(key_dir, [])
-
-        assert os.path.exists(csv_path)
         with open(csv_path, "r") as f:
             content = f.read()
         assert content == "\n"
@@ -84,38 +72,62 @@ class TestRebuildAuthorizedKeysFile:
         """Verify the file is created in the single-line, comma-separated format."""
         key_dir = tmp_path / "keys_test"
         os.makedirs(key_dir)
-        csv_path = os.path.join(key_dir, "authorized_supernodes.csv")
 
         participants = [
-            ("p1", "key1_part1\nkey1_part2\n"),
-            ("p2", "key2_part1\nkey2_part2\n"),
+            ("p1", "ecdsa-sha2-nistp384 AAAA...key1 p1"),
+            ("p2", "ecdsa-sha2-nistp384 AAAA...key2 p2"),
         ]
-        rebuild_authorized_keys_csv(key_dir, participants)
+        rebuild_authorized_keys_csv(str(key_dir), participants)
 
+        csv_path = os.path.join(key_dir, "authorized_supernodes.csv")
         with open(csv_path, "r") as f:
-            content = (
-                f.read().strip()
-            )  # Use strip() to remove the trailing newline for comparison
+            content = f.read().strip()
 
-        expected_content = "key1_part1key1_part2,key2_part1key2_part2"
+        expected_content = (
+            "ecdsa-sha2-nistp384 AAAA...key1 p1,ecdsa-sha2-nistp384 AAAA...key2 p2"
+        )
         assert content == expected_content
 
     def test_rebuild_overwrites_existing_file(self, tmp_path):
-        """Verify that an existing file is correctly overwritten with the new format."""
+        """Verify that an existing file is correctly overwritten."""
         key_dir = tmp_path / "keys_test"
         os.makedirs(key_dir)
+
+        rebuild_authorized_keys_csv(str(key_dir), [("old_p1", "old_key_1")])
+        rebuild_authorized_keys_csv(
+            str(key_dir), [("new_p1", "new_key_1"), ("new_p2", "new_key_2")]
+        )
+
         csv_path = os.path.join(key_dir, "authorized_supernodes.csv")
-
-        # First run with initial data
-        initial_participants = [("old_p1", "old_key_1\n")]
-        rebuild_authorized_keys_csv(key_dir, initial_participants)
-
-        # Second run with new data
-        new_participants = [("new_p1", "new_key_1\n"), ("new_p2", "new_key_2\n")]
-        rebuild_authorized_keys_csv(key_dir, new_participants)
-
         with open(csv_path, "r") as f:
             content = f.read().strip()
 
         expected_content = "new_key_1,new_key_2"
         assert content == expected_content
+
+    def test_rebuild_sanitizes_pem_keys_to_ssh_format(self, tmp_path):
+        """
+        Tests the self-healing capability of the rebuild function to convert
+        old PEM keys from the database into the correct OpenSSH format.
+        """
+        key_dir = tmp_path / "keys_test"
+        os.makedirs(key_dir)
+
+        # Generate a real key pair to get a valid PEM string
+        private_key = ec.generate_private_key(ec.SECP384R1())
+        public_key = private_key.public_key()
+        pem_key = public_key.public_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PublicFormat.SubjectPublicKeyInfo,
+        ).decode("utf-8")
+
+        participants = [("p1_pem", pem_key)]
+        rebuild_authorized_keys_csv(str(key_dir), participants)
+
+        csv_path = os.path.join(key_dir, "authorized_supernodes.csv")
+        with open(csv_path, "r") as f:
+            content = f.read().strip()
+
+        # Verify the output is now in the correct OpenSSH format with the comment
+        assert content.startswith("ecdsa-sha2-nistp384")
+        assert content.endswith("p1_pem")
