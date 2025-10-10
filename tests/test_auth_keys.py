@@ -93,16 +93,23 @@ class TestRebuildAuthorizedKeysFile:
         key_dir = tmp_path / "keys_test"
         os.makedirs(key_dir)
 
-        rebuild_authorized_keys_csv(str(key_dir), [("old_p1", "old_key_1")])
-        rebuild_authorized_keys_csv(
-            str(key_dir), [("new_p1", "new_key_1"), ("new_p2", "new_key_2")]
-        )
+        # Use dummy data that matches the expected OpenSSH format
+        initial_participants = [("old_p1", "ecdsa-sha2-nistp384 old_key_1 old_p1")]
+        rebuild_authorized_keys_csv(str(key_dir), initial_participants)
+
+        new_participants = [
+            ("new_p1", "ecdsa-sha2-nistp384 new_key_1 new_p1"),
+            ("new_p2", "ecdsa-sha2-nistp384 new_key_2 new_p2"),
+        ]
+        rebuild_authorized_keys_csv(str(key_dir), new_participants)
 
         csv_path = os.path.join(key_dir, "authorized_supernodes.csv")
         with open(csv_path, "r") as f:
             content = f.read().strip()
 
-        expected_content = "new_key_1,new_key_2"
+        expected_content = (
+            "ecdsa-sha2-nistp384 new_key_1 new_p1,ecdsa-sha2-nistp384 new_key_2 new_p2"
+        )
         assert content == expected_content
 
     def test_rebuild_sanitizes_pem_keys_to_ssh_format(self, tmp_path):
