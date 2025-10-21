@@ -11,9 +11,9 @@ SPACE_OWNER = os.getenv("SPACE_OWNER", SPACE_ID.split("/")[0] if SPACE_ID else N
 
 # Use persistent storage if available
 DB_PATH = (
-    "/data/db/federation.db" if os.path.isdir("/data/db") else "./data/db/federation.db"
+    "/data/federation.db" if os.path.isdir("/data/") else "./data/db/federation.db"
 )
-SQLALCHEMY_URL = f"sqlite:///{os.path.abspath(DB_PATH)}"
+SQLALCHEMY_URL = os.getenv("SQLALCHEMY_URL", f"sqlite:///{os.path.abspath(DB_PATH)}")
 MAX_NUM_NODES = int(os.getenv("MAX_NUM_NODES", "20"))
 SMTP_SENDER = os.getenv("SMTP_SENDER", "hello@ethicalabs.ai")
 SMTP_SERVER = os.getenv("SMTP_SERVER", "localhost")
