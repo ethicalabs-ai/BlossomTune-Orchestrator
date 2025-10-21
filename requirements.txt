@@ -8,9 +8,9 @@ scikit-learn>=1.7.1
 evaluate>=0.4.5
 markupsafe==2.1.3
 jinja2>=3.1.6
-mlx[cpu]>=0.29.2
+# mlx[cpu]>=0.29.2
 alembic>=1.16.5
 sqlalchemy>=2.0.43
 cryptography>=44.0.3
 dnspython>=2.8.0
-mlx-lm>=0.28.2
+# mlx-lm>=0.28.2
