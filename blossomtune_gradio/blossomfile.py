@@ -39,7 +39,7 @@ def create_blossomfile(
         The full path to the generated .blossomfile.
     """
     os.makedirs(output_dir, exist_ok=True)
-    blossomfile_path = os.path.join(output_dir, f"{participant_id}.blossomfile")
+    blossomfile_path = os.path.join(output_dir, f"{participant_id}-blossomfile.zip")
     log.info(f"Creating Blossomfile for {participant_id} at {blossomfile_path}")
 
     # 1. Create the blossom.json configuration data

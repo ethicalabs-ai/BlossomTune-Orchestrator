@@ -50,7 +50,7 @@ def test_create_blossomfile_success(tmp_path, dummy_credential_files):
 
     # 1. Verify the file was created at the correct path
     assert os.path.exists(blossomfile_path)
-    assert blossomfile_path == str(output_dir / f"{participant_id}.blossomfile")
+    assert blossomfile_path == str(output_dir / f"{participant_id}-blossomfile.zip")
 
     # 2. Verify the contents of the zip archive
     with zipfile.ZipFile(blossomfile_path, "r") as zf:

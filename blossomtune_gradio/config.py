@@ -22,7 +22,7 @@ SMTP_REQUIRE_TLS = util.strtobool(os.getenv("SMTP_REQUIRE_TLS", "false"))
 SMTP_USER = os.getenv("SMTP_USER", "")
 SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")
 EMAIL_PROVIDER = os.getenv("EMAIL_PROVIDER", "smtp")
-SUPERLINK_HOST = os.getenv("SUPERLINK_HOST", "127.0.0.1:9092")
+SUPERLINK_HOST = os.getenv("SUPERLINK_HOST", "127.0.0.1")
 SUPERLINK_PORT = int(os.getenv("SUPERLINK_PORT", 9092))
 SUPERLINK_CONTROL_API_PORT = int(os.getenv("SUPERLINK_CONTROL_API_PORT", 9093))
 SUPERLINK_MODE = os.getenv("SUPERLINK_MODE", "internal").lower()  # Or external
@@ -49,6 +49,20 @@ BLOSSOMTUNE_TLS_CERT_PATH = os.getenv(
 BLOSSOMTUNE_TLS_CA_CERTFILE = os.path.join(BLOSSOMTUNE_TLS_CERT_PATH, "ca.crt")
 BLOSSOMTUNE_TLS_CERTFILE = os.path.join(BLOSSOMTUNE_TLS_CERT_PATH, "server.pem")
 BLOSSOMTUNE_TLS_KEYFILE = os.path.join(BLOSSOMTUNE_TLS_CERT_PATH, "server.key")
+
+# EC Auth - Keys
+AUTH_KEYS_DIR = os.getenv(
+    "AUTH_KEYS_DIR",
+    "/data/keys/"
+    if os.path.isdir("/data/keys")
+    else os.path.join(PROJECT_PATH, "./data/keys/"),
+)
+
+# EC Auth - CSV File
+AUTH_KEYS_CSV_PATH = os.getenv(
+    "AUTH_KEYS_CSV_PATH",
+    os.path.join(AUTH_KEYS_DIR, "authorized_supernodes.csv"),
+)
 
 # Flower Apps
 FLOWER_APPS = os.getenv("FLOWER_APPS", ["flower_apps.quickstart_huggingface"])

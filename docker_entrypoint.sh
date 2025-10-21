@@ -1,5 +1,4 @@
 #!/bin/bash
-
 set -e
 
 echo "Env vars:"
@@ -13,7 +12,8 @@ elif [ "${1}" = "superlink" ]; then
     exec flower-superlink \
         --ssl-ca-certfile /data/certs/ca.crt \
         --ssl-certfile /data/certs/server.pem \
-        --ssl-keyfile /data/certs/server.key
+        --ssl-keyfile /data/certs/server.key \
+        --auth-list-public-keys /data/keys/authorized_supernodes.csv
 else
     exec "$@"
 fi
