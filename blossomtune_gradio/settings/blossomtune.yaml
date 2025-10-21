@@ -50,7 +50,7 @@ ui:
     
     *Example `flower-supernode` command:*
     ```bash
-    flower-supernode --superlink {{ superlink_hostname }}:{{ superlink_port}} --node-config "partition-id={{ partition_id }} num-partitions={{ num_partitions }}" --root-certificates=ca.crt  --auth-supernode-private-key=auth.key --auth-supernode-public-key=wauth.pub
+    flower-supernode --superlink {{ superlink_hostname }}:{{ superlink_port}} --node-config "partition-id={{ partition_id }} num-partitions={{ num_partitions }}" --root-certificates=ca.crt  --auth-supernode-private-key=auth.key --auth-supernode-public-key=auth.pub
 
     ```
 
