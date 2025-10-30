@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="BlossomTune Developers" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Configuration - BlossomTune Orchestrator</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Configuration";
+        var mkdocs_page_input_path = "configuration.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> BlossomTune Orchestrator
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../installation/">Installation</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">Configuration</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#key-environment-variables">Key Environment Variables</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#ui-text-configuration">UI Text Configuration</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#database-migrations">Database Migrations</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">User Guide</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../user_guide/participant/">For Participants</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../user_guide/administrator/">For Administrators</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Developer Guide</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../developer_guide/project_structure/">Project Structure</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../developer_guide/adding_apps/">How-To: Add a Flower App</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../developer_guide/custom_text/">How-To: Customize UI Text</a>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../api/">API Reference</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../contributing/">Contributing</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">BlossomTune Orchestrator</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Configuration</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/ethicalabs-ai/BlossomTune-Orchestrator/edit/master/docs/configuration.md">Edit on ethicalabs-ai/BlossomTune-Orchestrator</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h1>
+<p>The application is configured primarily through environment variables, which are documented in <code>blossomtune_gradio/config.py</code> and set in your <code>docker-compose.yaml</code> or <code>.env</code> file.</p>
+<h2 id="key-environment-variables">Key Environment Variables<a class="headerlink" href="#key-environment-variables" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>BLOSSOMTUNE_CONFIG</code>: Path to the <code>blossomtune.yaml</code> file for UI text.</li>
+<li><code>SPACE_ID</code>: The Hugging Face Space ID (e.g., <code>ethicalabs/BlossomTune-Orchestrator</code>). Used for auth.</li>
+<li><code>SQLALCHEMY_URL</code>: The database connection string. Defaults to SQLite in the <code>data/db</code> volume.</li>
+<li><code>SMTP_SERVER</code>, <code>SMTP_PORT</code>, <code>SMTP_USER</code>, <code>SMTP_PASSWORD</code>: Credentials for the email sending service. Defaults to the local MailHog container.</li>
+<li><code>EMAIL_PROVIDER</code>: Set to <code>mailjet</code> to use the Mailjet API instead of SMTP.</li>
+<li><code>SUPERLINK_MODE</code>: <code>internal</code> (default) or <code>external</code>. In <code>internal</code> mode, the app starts its own Superlink. In <code>external</code> mode, it assumes one is running at <code>SUPERLINK_HOST</code>.</li>
+<li><code>SUPERLINK_HOST</code>: Hostname of the Superlink (e.g., <code>host.docker.internal</code> when running in Docker).</li>
+<li><code>TLS_CERT_DIR</code>: Path to the TLS certificate directory (defaults to <code>data/certs</code>).</li>
+<li><code>AUTH_KEYS_DIR</code>: Path to the participant auth keys directory (defaults to <code>data/keys</code>).</li>
+<li><code>FLOWER_APPS</code>: Comma-separated list of Python modules to load as Flower Apps (e.g., <code>flower_apps.quickstart_huggingface</code>).</li>
+</ul>
+<h2 id="ui-text-configuration">UI Text Configuration<a class="headerlink" href="#ui-text-configuration" title="Permanent link">&para;</a></h2>
+<p>All user-facing text in the Gradio UI can be modified without changing the Python code.</p>
+<ul>
+<li><strong>File</strong>: <code>blossomtune_gradio/settings/blossomtune.yaml</code></li>
+<li><strong>Schema</strong>: <code>blossomtune_gradio/settings/blossomtune.schema.json</code></li>
+</ul>
+<p>This file contains key-value pairs for all messages, labels, and markdown content. It supports Jinja2 templating for dynamic values (e.g., <code>{{ participant_id }}</code>). See the developer guide for more details.</p>
+<h2 id="database-migrations">Database Migrations<a class="headerlink" href="#database-migrations" title="Permanent link">&para;</a></h2>
+<p>The application uses Alembic to manage database schema changes.</p>
+<ul>
+<li><strong>Config</strong>: <code>alembic.ini</code></li>
+<li><strong>Migrations</strong>: <code>alembic/versions/</code></li>
+</ul>
+<p>By default, migrations are run automatically on startup (<code>RUN_MIGRATIONS_ON_STARTUP=true</code>). You can disable this and run them manually using standard Alembic commands.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../installation/" class="btn btn-neutral float-left" title="Installation"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../user_guide/participant/" class="btn btn-neutral float-right" title="For Participants">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/ethicalabs-ai/BlossomTune-Orchestrator" class="fa fa-code-fork" style="color: #fcfcfc"> ethicalabs-ai/BlossomTune-Orchestrator</a>
+        </span>
+    
+    
+      <span><a href="../installation/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../user_guide/participant/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
