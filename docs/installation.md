@@ -16,8 +16,8 @@ The recommended way to install and run the application is by using `docker compo
 1.  **Clone the Repository**
 
     ```bash
-    git clone [https://github.com/ethicalabs-ai/BlossomTune-Gradio.git](https://github.com/ethicalabs-ai/BlossomTune-Gradio.git)
-    cd BlossomTune-Gradio
+    git clone [https://github.com/ethicalabs-ai/BlossomTune-Orchestrator.git](https://github.com/ethicalabs-ai/BlossomTune-Orchestrator.git)
+    cd BlossomTune-Orchestrator
     ```
 
 2.  **Set Environment Variables**

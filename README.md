@@ -46,7 +46,7 @@ The project comes bundled with a sample federated learning application, `quickst
 1.  **Clone the Repository**:
 
     ```bash
-    git clone https://github.com/ethicalabs-ai/BlossomTune-Gradio.git
+    git clone https://github.com/ethicalabs-ai/BlossomTune-Orchestrator.git
     cd BlossomTune-Flower-Superlink
     ```
 
@@ -151,7 +151,7 @@ The Superlink will automatically find and use these certificates to secure its c
 The codebase is organized into two main packages: `blossomtune_gradio` (the web application) and `flower_apps` (the federated learning tasks).
 
 ```
-└── BlossomTune-Gradio/
+└── BlossomTune-Orchestrator/
     ├── pyproject.toml              # Project metadata and dependencies for the orchestrator
     ├── .pre-commit-config.yaml     # Configuration for pre-commit hooks (ruff)
     ├── blossomtune_gradio/
