@@ -1,0 +1,44 @@
+site_name: BlossomTune Orchestrator
+site_description: A web-based orchestrator for managing Flower federated learning experiments.
+site_author: BlossomTune Developers
+
+repo_url: https://github.com/ethicalabs-ai/BlossomTune-Gradio
+repo_name: ethicalabs-ai/BlossomTune-Gradio
+
+theme:
+  name: readthedocs
+  highlightjs: true
+  navigation_depth: 3
+  
+markdown_extensions:
+  - toc:
+      permalink: true
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.details
+  - admonition
+  # <-- The mkdocstrings block was removed from here
+
+plugins:
+  - search
+  # Configure mkdocstrings here, under the plugins section
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            show_root_heading: yes
+            show_root_toc_entry: yes
+
+nav:
+  - Home: index.md
+  - Installation: installation.md
+  - Configuration: configuration.md
+  - User Guide:
+    - For Participants: user_guide/participant.md
+    - For Administrators: user_guide/administrator.md
+  - Developer Guide:
+    - 'Project Structure': developer_guide/project_structure.md
+    - 'How-To: Add a Flower App': developer_guide/adding_apps.md
+    - 'How-To: Customize UI Text': developer_guide/custom_text.md
+  - API Reference: api.md
+  - Contributing: contributing.md
