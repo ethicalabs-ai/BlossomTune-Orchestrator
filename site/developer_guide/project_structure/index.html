@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="BlossomTune Developers" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Project Structure - BlossomTune Orchestrator</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Project Structure";
+        var mkdocs_page_input_path = "developer_guide/project_structure.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> BlossomTune Orchestrator
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../installation/">Installation</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../configuration/">Configuration</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">User Guide</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../user_guide/participant/">For Participants</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../user_guide/administrator/">For Administrators</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Developer Guide</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Project Structure</a>
+    <ul class="current">
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../adding_apps/">How-To: Add a Flower App</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../custom_text/">How-To: Customize UI Text</a>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../api/">API Reference</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../contributing/">Contributing</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">BlossomTune Orchestrator</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Developer Guide</li>
+      <li class="breadcrumb-item active">Project Structure</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/ethicalabs-ai/BlossomTune-Orchestrator/edit/master/docs/developer_guide/project_structure.md">Edit on ethicalabs-ai/BlossomTune-Orchestrator</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="project-structure">Project Structure<a class="headerlink" href="#project-structure" title="Permanent link">&para;</a></h1>
+<p>This document outlines the main components of the BlossomTune Orchestrator codebase.</p>
+<div class="highlight"><pre><span></span><code>.
+├── alembic  # Alembic database migrations
+├── alembic.ini  # Alembic config
+├── blossomtune_gradio  # Main Python package
+│   ├── __main__.py  # Entrypoint: runs migrations, launches app
+│   ├── auth_keys.py  # Generates EC keys, builds authorized_keys.csv
+│   ├── blossomfile.py  # Creates the .blossomfile zip archive
+│   ├── config.py  # Loads configuration from environment variables
+│   ├── database.py  # SQLAlchemy models (Request, Config)
+│   ├── federation.py  # Core logic for join/approve/deny workflow
+│   ├── generate_tls.py  # Logic for generating TLS certificates
+│   ├── gradio_app.py  # Gradio App Logic 
+│   ├── logs.py  # In-memory log handler for the UI
+│   ├── mail.py  # Email sending logic (SMTP, Mailjet)
+│   ├── processing.py  # Starts/stops Superlink/Runner subprocesses
+│   ├── settings  # UI text config (YAML) and schema (JSON)
+│   ├── tls.py  # In-memory log handler for the UI
+│   ├── ui  # Gradio UI definitions
+│   │   ├── auth.py  # Gradio auth handlers
+│   │   ├── callbacks.py  # Gradio event handlers
+│   │   ├── components.py # Gradio component definitions
+│   └── util.py  # Misc utils
+├── docker_entrypoint.sh  # Docker Entrypoint
+├── docker-compose.yaml  # Docker Compose File
+├── Dockerfile  # Docker Container File
+├── docs  # This documentation
+├── flower_apps  # Flower Apps
+│   └── quickstart_huggingface  # Example Flower App
+├── tests  # Tests (PyTest) 
+</code></pre></div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../../user_guide/administrator/" class="btn btn-neutral float-left" title="For Administrators"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../adding_apps/" class="btn btn-neutral float-right" title="How-To: Add a Flower App">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/ethicalabs-ai/BlossomTune-Orchestrator" class="fa fa-code-fork" style="color: #fcfcfc"> ethicalabs-ai/BlossomTune-Orchestrator</a>
+        </span>
+    
+    
+      <span><a href="../../user_guide/administrator/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../adding_apps/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="BlossomTune Developers" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>How-To: Customize UI Text - BlossomTune Orchestrator</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "How-To: Customize UI Text";
+        var mkdocs_page_input_path = "developer_guide/custom_text.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> BlossomTune Orchestrator
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../installation/">Installation</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../configuration/">Configuration</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">User Guide</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../user_guide/participant/">For Participants</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../user_guide/administrator/">For Administrators</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Developer Guide</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../project_structure/">Project Structure</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../adding_apps/">How-To: Add a Flower App</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">How-To: Customize UI Text</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#1-the-configuration-file">1. The Configuration File</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#2-the-schema">2. The Schema</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#3-the-loading-mechanism">3. The Loading Mechanism</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#example-changing-an-error-message">Example: Changing an Error Message</a>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../api/">API Reference</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../contributing/">Contributing</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">BlossomTune Orchestrator</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Developer Guide</li>
+      <li class="breadcrumb-item active">How-To: Customize UI Text</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/ethicalabs-ai/BlossomTune-Orchestrator/edit/master/docs/developer_guide/custom_text.md">Edit on ethicalabs-ai/BlossomTune-Orchestrator</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="how-to-customize-ui-text">How-To: Customize UI Text<a class="headerlink" href="#how-to-customize-ui-text" title="Permanent link">&para;</a></h1>
+<p>All user-facing text (labels, descriptions, error messages) is loaded from an external YAML file and is not hardcoded in the Python source. This makes it easy to customize or translate the UI.</p>
+<h2 id="1-the-configuration-file">1. The Configuration File<a class="headerlink" href="#1-the-configuration-file" title="Permanent link">&para;</a></h2>
+<p>The text is loaded from:</p>
+<p><code>blossomtune_gradio/settings/blossomtune.yaml</code></p>
+<p>This file's location can be overridden at runtime by setting the <code>BLOSSOMTUNE_CONFIG</code> environment variable.</p>
+<h2 id="2-the-schema">2. The Schema<a class="headerlink" href="#2-the-schema" title="Permanent link">&para;</a></h2>
+<p>All keys in the YAML file are validated against a JSON schema to prevent typos and ensure all required text is defined:</p>
+<p><code>blossomtune_gradio/settings/blossomtune.schema.json</code></p>
+<p>If you add a new text item, you must also add it to the schema's <code>properties</code> and <code>required</code> sections.</p>
+<h2 id="3-the-loading-mechanism">3. The Loading Mechanism<a class="headerlink" href="#3-the-loading-mechanism" title="Permanent link">&para;</a></h2>
+<p>The <code>blossomtune_gradio.settings.Settings</code> class is a singleton that loads, validates, and parses the YAML file on application startup.</p>
+<p>It uses <strong>Jinja2</strong> to render templates, allowing for dynamic content in the UI.</p>
+<h2 id="example-changing-an-error-message">Example: Changing an Error Message<a class="headerlink" href="#example-changing-an-error-message" title="Permanent link">&para;</a></h2>
+<ol>
+<li>
+<p><strong>Open <code>blossomtune.yaml</code></strong></p>
+<p>Find the key you want to change. For example, the message for an invalid email:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># blossomtune_gradio/settings/blossomtune.yaml</span>
+<span class="nt">ui</span><span class="p">:</span>
+<span class="w">  </span><span class="c1"># ...</span>
+<span class="w">  </span><span class="nt">invalid_email_md</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">    </span><span class="no">### Invalid Input</span>
+<span class="w">    </span><span class="no">Please provide a valid email address.</span>
+<span class="w">  </span><span class="c1"># ...</span>
+</code></pre></div>
+</li>
+<li>
+<p><strong>Edit the Text</strong></p>
+<p>You can change the text (including markdown) to whatever you need:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># blossomtune_gradio/settings/blossomtune.yaml</span>
+<span class="nt">ui</span><span class="p">:</span>
+<span class="w">  </span><span class="c1"># ...</span>
+<span class="w">  </span><span class="nt">invalid_email_md</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">    </span><span class="no">### Email Not Valid</span>
+<span class="w">    </span><span class="no">**Warning:** Your email address appears to be incorrect. Please try again.</span>
+<span class="w">  </span><span class="c1"># ...</span>
+</code></pre></div>
+</li>
+<li>
+<p><strong>Using Dynamic Content</strong></p>
+<p>Some text fields, like the "approved" status, use Jinja2 variables.</p>
+<div class="highlight"><pre><span></span><code><span class="nt">status_approved_md</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">  </span><span class="no">### ✅ Approved</span>
+<span class="w">  </span><span class="no">Your request for ID `{{ participant_id }}` has been approved.</span>
+<span class="w">  </span><span class="no">- **Your Assigned Partition ID:** `{{ partition_id }}`</span>
+</code></pre></div>
+<p>When the application renders this text, it passes the participant's data to the template, filling in the <code>{{ ... }}</code> placeholders.</p>
+</li>
+</ol>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../adding_apps/" class="btn btn-neutral float-left" title="How-To: Add a Flower App"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../api/" class="btn btn-neutral float-right" title="API Reference">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/ethicalabs-ai/BlossomTune-Orchestrator" class="fa fa-code-fork" style="color: #fcfcfc"> ethicalabs-ai/BlossomTune-Orchestrator</a>
+        </span>
+    
+    
+      <span><a href="../adding_apps/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../../api/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

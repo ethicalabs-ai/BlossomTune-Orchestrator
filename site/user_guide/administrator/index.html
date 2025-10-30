@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="BlossomTune Developers" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>For Administrators - BlossomTune Orchestrator</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "For Administrators";
+        var mkdocs_page_input_path = "user_guide/administrator.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> BlossomTune Orchestrator
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../installation/">Installation</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../configuration/">Configuration</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">User Guide</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../participant/">For Participants</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">For Administrators</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#accessing-the-admin-panel">Accessing the Admin Panel</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#infrastructure-control">Infrastructure Control</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#federation-control">Federation Control</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#federation-requests">Federation Requests</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#pending-requests">Pending Requests</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#approved-participants">Approved Participants</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#approval-workflow">Approval Workflow</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Developer Guide</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../developer_guide/project_structure/">Project Structure</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../developer_guide/adding_apps/">How-To: Add a Flower App</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../developer_guide/custom_text/">How-To: Customize UI Text</a>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../api/">API Reference</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../contributing/">Contributing</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">BlossomTune Orchestrator</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">User Guide</li>
+      <li class="breadcrumb-item active">For Administrators</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/ethicalabs-ai/BlossomTune-Orchestrator/edit/master/docs/user_guide/administrator.md">Edit on ethicalabs-ai/BlossomTune-Orchestrator</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="user-guide-for-administrators">User Guide: For Administrators<a class="headerlink" href="#user-guide-for-administrators" title="Permanent link">&para;</a></h1>
+<p>This guide explains how to manage the federation as an administrator (or Space owner).</p>
+<h2 id="accessing-the-admin-panel">Accessing the Admin Panel<a class="headerlink" href="#accessing-the-admin-panel" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Navigate to the orchestrator's Gradio URL.</li>
+<li>Log in with the Hugging Face account that <strong>owns the Space</strong>.</li>
+<li>If running locally, admin controls are enabled by default.</li>
+<li>The <strong>"Admin Panel"</strong> tab will become visible.</li>
+</ol>
+<h2 id="infrastructure-control">Infrastructure Control<a class="headerlink" href="#infrastructure-control" title="Permanent link">&para;</a></h2>
+<p>This section controls the core Flower services.</p>
+<ul>
+<li><strong>Superlink Status</strong>: Shows if the Superlink is <code>🟢 Running</code> or <code>🔴 Not Running</code>.</li>
+<li><strong>Start/Stop Superlink</strong>: Toggles the Flower Superlink process. This is the central server that participants connect to. <em>This must be running for participants to connect.</em></li>
+</ul>
+<h2 id="federation-control">Federation Control<a class="headerlink" href="#federation-control" title="Permanent link">&para;</a></h2>
+<p>This section controls the federated learning experiment itself.</p>
+<ul>
+<li><strong>Runner Status</strong>: Shows if a federated run is <code>🟢 Running</code> or <code>🔴 Not Running</code>.</li>
+<li><strong>Select Runner App</strong>: A dropdown of all available Flower Apps found in the <code>flower_apps/</code> directory.</li>
+<li><strong>Run ID</strong>: A unique name for this experiment (e.g., <code>run_123</code>).</li>
+<li><strong>Total Partitions</strong>: The total number of data partitions for this run. This number is given to all clients.</li>
+<li><strong>Start/Stop Federated Run</strong>: Toggles the Flower Runner process. This process loads the selected "Runner App" and coordinates the training rounds.</li>
+</ul>
+<h2 id="federation-requests">Federation Requests<a class="headerlink" href="#federation-requests" title="Permanent link">&para;</a></h2>
+<p>This section is for managing participants.</p>
+<h3 id="pending-requests">Pending Requests<a class="headerlink" href="#pending-requests" title="Permanent link">&para;</a></h3>
+<p>This table lists all participants who have successfully <strong>activated their email</strong> and are waiting for approval.</p>
+<h3 id="approved-participants">Approved Participants<a class="headerlink" href="#approved-participants" title="Permanent link">&para;</a></h3>
+<p>This table lists all participants who have been approved and assigned a Partition ID.</p>
+<h3 id="approval-workflow">Approval Workflow<a class="headerlink" href="#approval-workflow" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Click on a row in the <strong>"Pending Requests"</strong> table.</li>
+<li>The participant's ID will appear in the <strong>"Selected Participant ID"</strong> field.</li>
+<li>A unique, available <strong>"Assign Partition ID"</strong> will be automatically suggested. You can change this, but it must be unique.</li>
+<li>
+<p>Click <strong>"✅ Approve"</strong> or <strong>"❌ Deny"</strong>.</p>
+</li>
+<li>
+<p><strong>On Approval</strong>:</p>
+<ol>
+<li>The participant's status is set to "approved".</li>
+<li>A new EC key pair (<code>.key</code> and <code>.pub</code>) is generated for them and stored in the <code>data/keys</code> volume.</li>
+<li>Their public key is added to the <code>authorized_supernodes.csv</code> file, granting them access to the Superlink.</li>
+<li>The next time the participant checks their status, they will get the "Approved" message and their <code>.blossomfile</code> download.</li>
+</ol>
+</li>
+<li>
+<p><strong>On Denial</strong>:</p>
+<ol>
+<li>The participant's status is set to "denied".</li>
+<li>If they were previously approved, their public key is <strong>removed</strong> from <code>authorized_supernodes.csv</code>, revoking their access.</li>
+</ol>
+</li>
+</ol>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../participant/" class="btn btn-neutral float-left" title="For Participants"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../developer_guide/project_structure/" class="btn btn-neutral float-right" title="Project Structure">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/ethicalabs-ai/BlossomTune-Orchestrator" class="fa fa-code-fork" style="color: #fcfcfc"> ethicalabs-ai/BlossomTune-Orchestrator</a>
+        </span>
+    
+    
+      <span><a href="../participant/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../../developer_guide/project_structure/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
