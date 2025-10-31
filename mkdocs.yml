@@ -1,6 +1,8 @@
 site_name: BlossomTune Orchestrator
 site_description: A web-based orchestrator for managing Flower federated learning experiments.
-site_author: BlossomTune Developers
+site_author: Massimo Roberto Scamarcia <hello@ethicalabs.ai>
+docs_dir: src/docs/
+site_dir: docs/
 
 repo_url: https://github.com/ethicalabs-ai/BlossomTune-Orchestrator
 repo_name: ethicalabs-ai/BlossomTune-Orchestrator
