@@ -14,6 +14,10 @@ This guide explains how to join a federated learning experiment hosted by the Bl
 
 You should see a confirmation message: "✅ Registration Submitted! Please check your email for an activation code..."
 
+![Request to Join](./01a_request_to_join.png)
+
+![Email with Activation Code](./01b_request_to_join.png)
+
 ## 2. Activate Your Request
 
 1.  Check your email for a message with the subject "Your BlossomTune Activation Code". (If running locally, check the MailHog UI at `http://localhost:8025`).
@@ -24,6 +28,8 @@ You should see a confirmation message: "✅ Registration Submitted! Please check
 6.  Click **"Submit Request / Activate"** again.
 
 You should see a new message: "✅ Activation Successful! Your request is now pending review by an administrator."
+
+![Activate Your Request](./02_activate_your_request.png)
 
 ## 3. Check Approval Status
 
@@ -43,6 +49,8 @@ You will see one of three statuses:
 ## 4. Download Credentials (If Approved)
 
 If your request is approved, the status message will include your connection details (like your `partition_id`) and a download button will appear.
+
+![Download Credentials](./04_download_credentials.png)
 
 1.  Click the download button (e.g., `PARTICIPANT-ID-blossomfile.zip`).
 2.  This `Blossomfile` is a `.zip` archive containing everything you need to connect:

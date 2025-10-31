@@ -3,7 +3,7 @@
 ![Python Version](https://img.shields.io/badge/python-3.11-blue)
 ![License](https://img.shields.io/badge/license-Apache_2.0-green)
 
-BlossomTune is a web-based orchestrator for managing Flower federated learning experiments.
+BlossomTune is a web-based orchestrator for managing [Flower](https://flower.ai/) federated learning experiments.
 
 It provides a Gradio-based user interface for both administrators and participants, simplifying the process of joining, managing, and running federated learning tasks.
 

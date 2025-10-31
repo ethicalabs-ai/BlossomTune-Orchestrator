@@ -6,6 +6,7 @@ site_dir: docs/
 
 repo_url: https://github.com/ethicalabs-ai/BlossomTune-Orchestrator
 repo_name: ethicalabs-ai/BlossomTune-Orchestrator
+edit_uri: blob/main/docs/
 
 theme:
   name: readthedocs
