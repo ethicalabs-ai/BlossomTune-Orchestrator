@@ -4,7 +4,10 @@ version = "0.1.0-beta.0"
 description = "Run and orchestrate Fedetated Learning (FL) with Flower.ai and Gradio"
 readme = "README.md"
 requires-python = ">=3.11"
-authors = ["Ethicalabs.ai <hello@ethicalabs.ai>"]
+authors = [
+    {name = "Ethicalabs.ai", email = "hello@ethicalabs.ai"},
+    {name = "Massimo R. Scamarcia", email = "massimo@ethicalabs.ai"}
+]
 keywords = [
     "Federated Learning",
     "Flower",
