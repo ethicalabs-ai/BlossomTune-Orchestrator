@@ -81,6 +81,8 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#pre-commit-hooks">Pre-commit Hooks</a>
     </li>
+    <li class="toctree-l2"><a class="reference internal" href="#running-tests">Running Tests</a>
+    </li>
     </ul>
                 </li>
               </ul>
@@ -131,6 +133,23 @@
 <p>To install the hooks:</p>
 <div class="highlight"><pre><span></span><code>pre-commit<span class="w"> </span>install
 </code></pre></div>
+<p>This ensures that all committed code adheres to the project's code style.</p>
+<h2 id="running-tests">Running Tests<a class="headerlink" href="#running-tests" title="Permanent link">&para;</a></h2>
+<p>Tests are written using pytest.</p>
+<div class="highlight"><pre><span></span><code>pytest
+</code></pre></div>
+<p>Test configuration is in the <code>[tool.pytest.ini_options]</code> section of <code>pyproject.toml</code>.</p>
+<p><strong>BUILD COMMANDS:</strong>
+```bash</p>
+<h1 id="install-documentation-dependencies">Install documentation dependencies<a class="headerlink" href="#install-documentation-dependencies" title="Permanent link">&para;</a></h1>
+<p>pip install -r docs/requirements.txt</p>
+<h1 id="install-the-project-itself-for-mkdocstrings-to-find-it">Install the project itself (for mkdocstrings to find it)<a class="headerlink" href="#install-the-project-itself-for-mkdocstrings-to-find-it" title="Permanent link">&para;</a></h1>
+<p>pip install .</p>
+<h1 id="build-the-documentation-site">Build the documentation site<a class="headerlink" href="#build-the-documentation-site" title="Permanent link">&para;</a></h1>
+<p>mkdocs build</p>
+<h1 id="serve-the-documentation-locally">Serve the documentation locally<a class="headerlink" href="#serve-the-documentation-locally" title="Permanent link">&para;</a></h1>
+<p>mkdocs serve</p>
+<h1 id="site-will-be-available-at-http1270018000">(Site will be available at http://127.0.0.1:8000)<a class="headerlink" href="#site-will-be-available-at-http1270018000" title="Permanent link">&para;</a></h1>
               
             </div>
           </div><footer>
