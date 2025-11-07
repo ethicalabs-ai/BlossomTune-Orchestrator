@@ -30,3 +30,31 @@ To install the hooks:
 ```bash
 pre-commit install
 ```
+
+This ensures that all committed code adheres to the project's code style.
+
+## Running Tests
+
+Tests are written using pytest.
+
+```bash
+pytest
+```
+
+Test configuration is in the `[tool.pytest.ini_options]` section of `pyproject.toml`.
+
+
+**BUILD COMMANDS:**
+```bash
+# Install documentation dependencies
+pip install -r docs/requirements.txt
+
+# Install the project itself (for mkdocstrings to find it)
+pip install .
+
+# Build the documentation site
+mkdocs build
+
+# Serve the documentation locally
+mkdocs serve
+# (Site will be available at http://127.0.0.1:8000)
