@@ -45,6 +45,8 @@
     <ul class="current">
     <li class="toctree-l2"><a class="reference internal" href="#key-features">Key Features</a>
     </li>
+    <li class="toctree-l2"><a class="reference internal" href="#notes">Notes</a>
+    </li>
     </ul>
                 </li>
               </ul>
@@ -125,6 +127,10 @@
 <li><strong>Pluggable Flower Apps</strong>: Easily add new federated learning tasks by dropping them into the <code>flower_apps/</code> directory.</li>
 <li><strong>Database Persistence</strong>: Uses SQLite with Alembic migrations to store participant status and application configuration.</li>
 </ul>
+<h2 id="notes">Notes<a class="headerlink" href="#notes" title="Permanent link">&para;</a></h2>
+<p>Please note that due to HF networking and security limitations, you cannot run a Superlink server using Huggingface Spaces.</p>
+<p>Authentication keys and certs that are generated on HF will need to be synced manually via SSH to your Bare Metal or Cloud VM.</p>
+<p>An installation guide for Bare Metal Linux will be provided.</p>
               
             </div>
           </div><footer>
@@ -177,5 +183,5 @@
 
 <!--
 MkDocs version : 1.6.1
-Build Date UTC : 2025-10-31 01:07:18.798316+00:00
+Build Date UTC : 2025-11-07 21:49:21.392626+00:00
 -->

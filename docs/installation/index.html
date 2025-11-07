@@ -120,14 +120,15 @@
 <ol>
 <li>
 <p><strong>Clone the Repository</strong></p>
-<div class="highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span><span class="o">[</span>https://github.com/ethicalabs-ai/BlossomTune-Orchestrator.git<span class="o">](</span>https://github.com/ethicalabs-ai/BlossomTune-Orchestrator.git<span class="o">)</span>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/ethicalabs-ai/BlossomTune-Orchestrator.git
 <span class="nb">cd</span><span class="w"> </span>BlossomTune-Orchestrator
 </code></pre></div>
 </li>
 <li>
 <p><strong>Set Environment Variables</strong></p>
-<p>The <code>docker-compose.yaml</code> file requires certain environment variables. The most important one is <code>HF_TOKEN</code> if you are deploying on Hugging Face Spaces.</p>
-<p>Export the environment variable <code>HF_TOKEN</code>:</p>
+<p>The <code>docker-compose.yaml</code> file requires certain environment variables.</p>
+<p>The most important one is <code>HF_TOKEN</code> if you are using Hugging Face for auth.</p>
+<p>To exporte the environment variable <code>HF_TOKEN</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">HF_TOKEN</span><span class="o">=</span>your_huggingface_token_here
 </code></pre></div>
 </li>
