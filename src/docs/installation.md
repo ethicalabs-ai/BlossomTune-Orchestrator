@@ -16,15 +16,17 @@ The recommended way to install and run the application is by using `docker compo
 1.  **Clone the Repository**
 
     ```bash
-    git clone [https://github.com/ethicalabs-ai/BlossomTune-Orchestrator.git](https://github.com/ethicalabs-ai/BlossomTune-Orchestrator.git)
+    git clone https://github.com/ethicalabs-ai/BlossomTune-Orchestrator.git
     cd BlossomTune-Orchestrator
     ```
 
 2.  **Set Environment Variables**
 
-    The `docker-compose.yaml` file requires certain environment variables. The most important one is `HF_TOKEN` if you are deploying on Hugging Face Spaces.
+    The `docker-compose.yaml` file requires certain environment variables.
 
-    Export the environment variable `HF_TOKEN`:
+    The most important one is `HF_TOKEN` if you are using Hugging Face for auth.
+
+    To exporte the environment variable `HF_TOKEN`:
 
     ```bash
     export HF_TOKEN=your_huggingface_token_here

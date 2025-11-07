@@ -22,3 +22,11 @@ The system is designed to be deployed via Docker and includes components for:
 * **`Blossomfile` Generation**: Approved participants receive a simple `.zip` file with all necessary keys and configuration to join.
 * **Pluggable Flower Apps**: Easily add new federated learning tasks by dropping them into the `flower_apps/` directory.
 * **Database Persistence**: Uses SQLite with Alembic migrations to store participant status and application configuration.
+
+## Notes
+
+Please note that due to HF networking and security limitations, you cannot run a Superlink server using Huggingface Spaces.
+
+Authentication keys and certs that are generated on HF will need to be synced manually via SSH to your Bare Metal or Cloud VM.
+
+An installation guide for Bare Metal Linux will be provided.

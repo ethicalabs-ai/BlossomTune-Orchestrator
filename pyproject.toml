@@ -1,9 +1,36 @@
 [project]
 name = "blossomtune-gradio"
-version = "0.1.0"
-description = "Run and orchestrate fedetated learning with Flower.ai and Gradio"
+version = "0.1.0-beta.0"
+description = "Run and orchestrate Fedetated Learning (FL) with Flower.ai and Gradio"
 readme = "README.md"
 requires-python = ">=3.11"
+authors = ["Ethicalabs.ai <hello@ethicalabs.ai>"]
+keywords = [
+    "Federated Learning",
+    "Flower",
+    "Machine Learning",
+    "Gradio",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
 dependencies = [
     "apscheduler>=3.11.0",
     "flwr[simulation]>=1.21.0",
@@ -97,8 +124,8 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["blossomtune_gradio", "flower_apps"]
-exclude = ["results", "data"]
+include = ["blossomtune_gradio"]
+exclude = ["results", "data", "tests"]
 
 
 [tool.alembic]
